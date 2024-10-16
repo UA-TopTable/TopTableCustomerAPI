@@ -48,7 +48,7 @@ def login():
 @app.route("/redirect")
 @cognito_login_callback
 def redirect():
-    return session
+    return redirect("/")
 
 @app.route("/refresh", methods=["POST"])
 @cognito_refresh_callback
