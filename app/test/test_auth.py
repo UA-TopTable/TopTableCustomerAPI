@@ -23,3 +23,21 @@ def test_login_and_sign_out_success(client):
     })
 
     assert response.status_code==200
+
+def test_login_wrong_credentials(client):
+    response=client.post("/api/v1/auth/log_in",json={
+        "email":"johndoe@gmail.com",
+        "password":"WrongPassword!123"
+    })
+
+    assert response.status_code==401
+
+def test_register_taken(client):
+    response=client.post("/api/v1/auth/sign_up",json={
+        "email":"johndoe@gmail.com",
+        "password":"RandomPassword!123",
+        "name":"John Doe",
+        "phone_number":"+351123456789"
+    })
+
+    assert response.status_code==409
