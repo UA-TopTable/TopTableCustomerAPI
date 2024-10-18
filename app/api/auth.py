@@ -2,11 +2,10 @@ import os
 import boto3
 from flask import current_app, jsonify, request
 from flask_restx import Namespace,Resource,fields
-from botocore.exceptions import NotAuthorizedException,UsernameExistsException,CodeMismatchException,ExpiredCodeException
 
 api=Namespace("auth",description="Authentication operations")
 
-cognito=boto3.client('cognito-idp',current_app.config["AWS_REGION"])
+cognito=boto3.client('cognito-idp',os.environ["AWS_REGION"])
 
 @api.route("/login")
 class Login(Resource):
@@ -45,7 +44,7 @@ class Login(Resource):
             return jsonify(response.get("AuthenticationResult"),200)
         except KeyError:
             return "Incorrect input",400
-        except NotAuthorizedException:
+        except cognito.NotAuthorizedException:
             return "Wrong username/password",401
         
 @api.route("/sign_up")
@@ -86,7 +85,7 @@ class SignUp(Resource):
             return "User created. Confirm registration via email"
         except KeyError:
             return "Wrong Body",400
-        except UsernameExistsException:
+        except cognito.UsernameExistsException:
             return "Username already exists",409
         
 @api.route("/signup/confirm")
@@ -113,7 +112,7 @@ class ConfirmSignUp(Resource):
             return "user confirmed",200
         except KeyError:
             return "Wrong body",400
-        except CodeMismatchException:
+        except cognito.CodeMismatchException:
             return "Wrong confirmation code",400
-        except ExpiredCodeException:
+        except cognito.ExpiredCodeException:
             return "Confirmation code expired",410
