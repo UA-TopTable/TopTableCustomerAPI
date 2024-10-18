@@ -21,7 +21,7 @@ login_response_model=api.model("login_response",{
     "NewDeviceMetadata":fields.Nested(new_request_metadata_model)
 })
 
-@api.route("/login")
+@api.route("/log_in")
 class Login(Resource):
     @api.doc('login')
     @api.expect({
@@ -45,7 +45,7 @@ class Login(Resource):
                     "USERNAME":email,
                     "PASSWORD":password
                 },
-                clientId=current_app.config["AWS_COGNITO_USER_POOL_CLIENT_ID"]
+                ClientId=current_app.config["AWS_COGNITO_USER_POOL_CLIENT_ID"]
             )
             return jsonify(response.get("AuthenticationResult"),200)
         except KeyError:
@@ -122,3 +122,23 @@ class ConfirmSignUp(Resource):
             return "Wrong confirmation code",400
         except cognito.exceptions.ExpiredCodeException:
             return "Confirmation code expired",410
+        
+@api.route("/sign_out")
+class SignOut(Resource):
+    @api.doc("sign out")
+    @api.expect({
+        "access_token":fields.String(required=True)
+    },validate=True)
+    @api.response(200,"sign out successful")
+    @api.response(400,"Wrong body")
+    @api.response(401,"invalid access token")
+    def post(self):
+        try:
+            data=request.json
+            access_token=data.get("access_token")
+            cognito.global_sign_out(AccessToken=access_token)
+            return "signed out successful",200
+        except KeyError:
+            return "Wrong body",400
+        except cognito.exceptions.NotAuthorizedException:
+            return "Invalid access token",401
