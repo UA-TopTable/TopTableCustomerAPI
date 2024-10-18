@@ -7,24 +7,30 @@ api=Namespace("auth",description="Authentication operations")
 
 cognito=boto3.client('cognito-idp',os.environ["AWS_REGION"])
 
+new_request_metadata_model=api.model("new_request_metadata",{
+    "DeviceKey":fields.String,
+    "DeviceGroupKey":fields.String
+})
+
+login_response_model=api.model("login_response",{
+    "AccessToken":fields.String(),
+    "ExpiresIn":fields.Integer(),
+    "TokenType":fields.String(),
+    "RefreshToken":fields.String(),
+    "IdToken":fields.String(),
+    "NewDeviceMetadata":fields.Nested(new_request_metadata_model)
+})
+
 @api.route("/login")
 class Login(Resource):
     @api.doc('login')
     @api.expect({
-    "email":fields.String(required=True),
-    "password":fields.String(required=True)
+        "email":fields.String(required=True),
+        "password":fields.String(required=True)
     },validate=True)
-    @api.response(200,description="success",model={
-        "AccessToken":fields.String(),
-        "ExpiresIn":fields.Integer(),
-        "TokenType":fields.String(),
-        "RefreshToken":fields.String(),
-        "IdToken":fields.String(),
-        "NewDeviceMetadata":fields.Nested({
-            "DeviceKey":fields.String,
-            "DeviceGroupKey":fields.String
-        })
-    })
+    @api.param("email",_in="body")
+    @api.param("password",_in="body")
+    @api.response(200,description="success",model=login_response_model)
     @api.response(400,"wrong response body")
     @api.response(401,"wrong email/password")
     def post(self):
@@ -39,12 +45,12 @@ class Login(Resource):
                     "USERNAME":email,
                     "PASSWORD":password
                 },
-                clientId=current_app.config["AWS_USER_POOL_CLIENT_ID"]
+                clientId=current_app.config["AWS_COGNITO_USER_POOL_CLIENT_ID"]
             )
             return jsonify(response.get("AuthenticationResult"),200)
         except KeyError:
             return "Incorrect input",400
-        except cognito.NotAuthorizedException:
+        except cognito.exceptions.NotAuthorizedException:
             return "Wrong username/password",401
         
 @api.route("/sign_up")
@@ -68,16 +74,16 @@ class SignUp(Resource):
             phone_number=data.get("phone_number")
 
             cognito.sign_up(
-                ClientId=current_app.config["AWS_USER_POOL_CLIENT_ID"],
+                ClientId=current_app.config["AWS_COGNITO_USER_POOL_CLIENT_ID"],
                 Username=email,
                 Password=password,
                 UserAttributes=[
                     {
-                        "Name": "Name",
+                        "Name": "name",
                         "Value":name
                     },
                     {
-                        "Name": "Phone Number",
+                        "Name": "phone_number",
                         "Value":phone_number
                     }
                 ]
@@ -85,10 +91,10 @@ class SignUp(Resource):
             return "User created. Confirm registration via email"
         except KeyError:
             return "Wrong Body",400
-        except cognito.UsernameExistsException:
+        except cognito.exceptions.UsernameExistsException:
             return "Username already exists",409
         
-@api.route("/signup/confirm")
+@api.route("/sign_up/confirm")
 class ConfirmSignUp(Resource):
     @api.doc("confirm sign up")
     @api.expect({
@@ -101,18 +107,18 @@ class ConfirmSignUp(Resource):
     @api.response(410,"confirmation code expired")
     def post(self):
         try:
-            data=request.data
+            data=request.json
             email=data.get("email")
             confirmation_code=data.get("confirmation_code")
             cognito.confirm_sign_up(
-                ClientId=current_app.config["AWS_USER_POOL_CLIENT_ID"],
+                ClientId=current_app.config["AWS_COGNITO_USER_POOL_CLIENT_ID"],
                 Username=email,
                 ConfirmationCode=confirmation_code
             )
             return "user confirmed",200
         except KeyError:
             return "Wrong body",400
-        except cognito.CodeMismatchException:
+        except cognito.exceptions.CodeMismatchException:
             return "Wrong confirmation code",400
-        except cognito.ExpiredCodeException:
+        except cognito.exceptions.ExpiredCodeException:
             return "Confirmation code expired",410

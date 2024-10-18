@@ -3,11 +3,10 @@ import boto3
 from flask import Flask,jsonify, redirect, request, session
 from flask_restx import Api
 
-from api.auth import api as api_auth
+from apis import blueprint,api
 
 app = Flask(__name__)
-api = Api(app,version="1.0",title="TopTable Customer API",description="TopTable API for the customer side")
-api.add_namespace(api_auth)
+api.init_app(app)
 
 app.secret_key=os.environ["FLASK_SECRET_KEY"]
 app.config.update({
@@ -18,3 +17,5 @@ app.config.update({
     "AWS_COGNITO_REFRESH_FLOW_ENABLED":True,
     "AWS_COGNITO_REFRESH_COOKIE_ENCRYPTED":True,
 })
+
+app.run(debug=True)
