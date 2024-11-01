@@ -1,8 +1,9 @@
 from sqlalchemy import Column, Integer, Enum, Time, ForeignKey, CheckConstraint
-from sqlalchemy.orm import declarative_base
-Base = declarative_base()
+from sqlalchemy_serializer import SerializerMixin
+from . import Base
 
-class WorkingHours(Base):
+
+class WorkingHours(Base,SerializerMixin):
     __tablename__ = 'WorkingHours'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -14,3 +15,8 @@ class WorkingHours(Base):
     __table_args__ = (
         CheckConstraint('closing_time > opening_time'),
     )
+
+    def to_dict(self):
+        data=super().to_dict
+        data["day_of_week"]=str(self.day_of_week)
+        return data

@@ -1,10 +1,11 @@
 from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, DECIMAL
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
+from sqlalchemy_serializer import SerializerMixin
+from . import Base
 
-Base = declarative_base()
 
-class Restaurant(Base):
+class Restaurant(Base,SerializerMixin):
     __tablename__ = 'Restaurant'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -18,3 +19,7 @@ class Restaurant(Base):
     owner_user_id = Column(Integer, ForeignKey('UserAccount.id'))
     created_date = Column(DateTime, server_default=func.now())
     updated_date = Column(DateTime, server_default=func.now(), onupdate=func.now())
+
+    dining_tables = relationship("DiningTable", back_populates="restaurant",lazy="joined")
+
+    serialize_rules=("-dining_tables.restaurant",)

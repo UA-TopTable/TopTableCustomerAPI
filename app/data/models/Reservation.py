@@ -1,10 +1,11 @@
 from sqlalchemy import Column, Integer, String, Text, Enum, DateTime, ForeignKey, CheckConstraint
-from sqlalchemy.orm import declarative_base
 from sqlalchemy.sql import func
+from sqlalchemy.orm import relationship
+from sqlalchemy_serializer import SerializerMixin
+from . import Base
 
-Base = declarative_base()
 
-class Reservation(Base):
+class Reservation(Base,SerializerMixin):
     __tablename__ = 'Reservation'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -24,3 +25,10 @@ class Reservation(Base):
         CheckConstraint('number_of_people > 0'),
         CheckConstraint('reservation_end_time > reservation_start_time'),
     )
+
+    dining_table=relationship("DiningTable",back_populates="reservations",lazy="joined")
+
+    def to_dict(self):
+        data=super().to_dict
+        data["status"]=str(self.status)
+        return data

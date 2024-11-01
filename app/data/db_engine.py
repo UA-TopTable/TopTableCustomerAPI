@@ -1,7 +1,11 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from db_secrets import DATABASE_URL
+from data.db_secrets import user,password,host,port,database
 
-Base = declarative_base(DATABASE_URL)
-engine = create_engine()
+
+from .models import Base,UserAccount,WorkingHours,Restaurant,Reservation,DiningTable
+
+DATABASE_URL=f"mysql+pymysql://{user}:{password}@{host}:{port}/{database}"
+
+engine = create_engine(DATABASE_URL)
 Base.metadata.create_all(engine)
