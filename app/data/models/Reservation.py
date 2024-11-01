@@ -1,11 +1,10 @@
 from sqlalchemy import Column, Integer, String, Text, Enum, DateTime, ForeignKey, CheckConstraint
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
-from sqlalchemy_serializer import SerializerMixin
 from . import Base
 
 
-class Reservation(Base,SerializerMixin):
+class Reservation(Base):
     __tablename__ = 'Reservation'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -28,7 +27,9 @@ class Reservation(Base,SerializerMixin):
 
     dining_table=relationship("DiningTable",back_populates="reservations",lazy="joined")
 
-    def to_dict(self):
-        data=super().to_dict
-        data["status"]=str(self.status)
-        return data
+    def as_dict(self):
+        result = {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        for key in ['reservation_start_time', 'reservation_end_time', 'created_date', 'updated_date']:
+            if key in result and result[key] is not None:
+                result[key] = result[key].isoformat()
+        return result
