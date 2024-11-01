@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reservation Details</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">Reservation Details</h1>
+        {% if reservation %}
+        <div class="card">
+            <div class="card-body">
+                <p><strong>User ID:</strong> {{ reservation.user_id }}</p>
+                <p><strong>Restaurant ID:</strong> {{ reservation.restaurant_id }}</p>
+                <p><strong>Dining Table ID:</strong> {{ reservation.dining_table_id }}</p>
+                <p><strong>Number of People:</strong> {{ reservation.number_of_people }}</p>
+                <p><strong>Reservation Start Time:</strong> {{ reservation.reservation_start_time }}</p>
+                <p><strong>Reservation End Time:</strong> {{ reservation.reservation_end_time }}</p>
+                <p><strong>Status:</strong> {{ reservation.status }}</p>
+                <p><strong>Special Requests:</strong> {{ reservation.special_requests }}</p>
+                <p><strong>Reservation Code:</strong> {{ reservation.reservation_code }}</p>
+                <p><strong>Reservation ID:</strong> {{ reservation.id }}</p>
+            </div>
+        </div>
+        {% else %}
+        <div class="alert alert-warning" role="alert">
+            Reservation not found.
+        </div>
+        {% endif %}
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+
+</html>
