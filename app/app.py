@@ -1,14 +1,11 @@
 import os
-import boto3
-from flask import Flask,jsonify, redirect, request, session
-from flask_restx import Api
+from flask import Flask
 
-from apis import blueprint,api
+from apis import api
 
 def create_app():
     app = Flask(__name__)
     api.init_app(app)
-
     app.secret_key=os.environ["FLASK_SECRET_KEY"]
     app.config.update({
         "AWS_REGION":os.environ["AWS_REGION"],

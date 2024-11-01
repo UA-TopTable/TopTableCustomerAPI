@@ -24,12 +24,10 @@ login_response_model=api.model("login_response",{
 @api.route("/log_in")
 class Login(Resource):
     @api.doc('login')
-    @api.expect({
-        "email":fields.String(required=True),
-        "password":fields.String(required=True)
-    },validate=True)
-    @api.param("email",_in="body")
-    @api.param("password",_in="body")
+    @api.expect(api.model('Login', {
+        "email": fields.String(required=True),
+        "password": fields.String(required=True)
+    }), validate=True)
     @api.response(200,description="success",model=login_response_model)
     @api.response(400,"wrong response body")
     @api.response(401,"wrong email/password")
@@ -38,7 +36,7 @@ class Login(Resource):
             data=request.json
             email=data.get("email")
             password=data.get("password")
-
+            print(email,password)
             response=cognito.initiate_auth(
                 AuthFlow="USER_PASSWORD_AUTH",
                 AuthParameters={
@@ -49,7 +47,8 @@ class Login(Resource):
             )
             return jsonify(response.get("AuthenticationResult"),200)
         except KeyError:
-            return "Incorrect input",400
+            print(response)
+            return "Incorrect input",401
         except cognito.exceptions.NotAuthorizedException:
             return "Wrong username/password",401
         
