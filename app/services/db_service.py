@@ -8,7 +8,7 @@ def add_reservation(user_id,restaurant_id,dining_table_id,number_of_people,reser
     with Session(engine) as session:
         table = session.get(DiningTable, dining_table_id)
         if table is None:
-            return "Table does not exist"
+            return None
         
         reservation = Reservation(
             user_id=user_id,

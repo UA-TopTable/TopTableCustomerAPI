@@ -1,9 +1,9 @@
 import uuid
-from flask import Blueprint, render_template, request
-from flask_restx import Namespace, Resource,fields
+from flask import request
+from flask_restx import Namespace, Resource, fields
 from sqlalchemy.exc import IntegrityError
+from util.utils import parse_time_slot
 from services.db_service import add_reservation, get_reservation
-from datetime import datetime
 
 api=Namespace("reservation",description="Operations for reservations")
 
@@ -26,34 +26,27 @@ class Reservation(Resource):
         if not data:
             return 'Body is required', 400
         
-        time_slot = data.get('reservation_time_slot')
-        reservation_date = data.get('reservation_date')
-        if not time_slot or not reservation_date:
-            return 'Reservation date and slot is required', 400
-        else:
-            try:
-                start_hour, end_hour = time_slot.split('-')
-                start_time_str = f"{reservation_date} {start_hour}"
-                end_time_str = f"{reservation_date} {end_hour}"
-                start_time = datetime.strptime(start_time_str, "%Y-%m-%d %H:%M")
-                end_time = datetime.strptime(end_time_str, "%Y-%m-%d %H:%M")
-            except ValueError:
-                return 'Invalid date format', 400
-            data['reservation_start_time'] = start_time
-            data['reservation_end_time'] = end_time
-
-        if 'reservation_code' not in data:
-            data['reservation_code'] = str(uuid.uuid4())[:6]
-
         required_fields = [
             'user_id', 'restaurant_id', 'dining_table_id', 'number_of_people',
-            'reservation_start_time', 'reservation_end_time', 'reservation_code'
+            'reservation_date', 'reservation_time_slot'
         ]
 
         if not all(field in data for field in required_fields):
             print(data)
             return 'Missing required fields', 400
+        
         try:
+            time_slot = data.get('reservation_time_slot')
+            reservation_date = data.get('reservation_date')
+            start_time, end_time = parse_time_slot(reservation_date, time_slot)
+            data['reservation_start_time'] = start_time
+            data['reservation_end_time'] = end_time
+        except ValueError:
+            return 'Invalid date/time slot format', 400
+
+
+        try:
+            data['reservation_code'] = str(uuid.uuid4())[:6]
             result = add_reservation(
                 user_id=data['user_id'],
                 restaurant_id=data['restaurant_id'],
@@ -65,7 +58,7 @@ class Reservation(Resource):
                 reservation_code=data['reservation_code']
             )
             if not result:
-                return 'Table not found', 404
+                return 'Table not found or request parameters are invalid', 400
             return result.get('id'), 201
         except IntegrityError as e:
             print(e)
