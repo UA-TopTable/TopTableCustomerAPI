@@ -1,11 +1,10 @@
 from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, DECIMAL
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-from sqlalchemy_serializer import SerializerMixin
 from . import Base
 
 
-class Restaurant(Base,SerializerMixin):
+class Restaurant(Base):
     __tablename__ = 'Restaurant'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -22,4 +21,12 @@ class Restaurant(Base,SerializerMixin):
 
     dining_tables = relationship("DiningTable", back_populates="restaurant",lazy="joined")
 
-    serialize_rules=("-dining_tables.restaurant",)
+    def as_dict(self):
+        result = {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        for key in ['created_date', 'updated_date']:
+            if key in result and result[key] is not None:
+                result[key] = result[key].isoformat()
+        for key in ['location_latitude', 'location_longitude']:
+            if key in result and result[key] is not None:
+                result[key] = float(result[key])
+        return result

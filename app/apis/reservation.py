@@ -1,9 +1,9 @@
 from flask import Blueprint, render_template, request
 from flask_restx import Namespace, Resource,fields
-import sqlalchemy
+from sqlalchemy.exc import IntegrityError
 from services.db_service import add_reservation, get_reservation
 
-api=Namespace("reservation",description="Operations for managing the Reservation")
+api=Namespace("reservation",description="Operations for reservations")
 
 @api.route('/')
 class Reservation(Resource):
@@ -48,7 +48,7 @@ class Reservation(Resource):
             if not result:
                 return 'Table not found', 404
             return result, 200
-        except sqlalchemy.exc.IntegrityError as e:
+        except IntegrityError as e:
             print(e)
             return f'Invalid request', 400
 
