@@ -11,7 +11,7 @@ class Restaurant(Resource):
         try:
             result = get_all_restaurants()
             if not result:
-                return 'Reservation not found', 404
+                return 'No restaurant found', 404
             return result, 200
         except Exception as e:
             print(e)
