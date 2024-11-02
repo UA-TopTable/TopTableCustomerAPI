@@ -1,9 +1,8 @@
 from sqlalchemy import Column, Integer, String, Enum, DateTime
 from sqlalchemy.sql import func
-from sqlalchemy_serializer import SerializerMixin
 from . import Base
 
-class UserAccount(Base,SerializerMixin):
+class UserAccount(Base):
     __tablename__ = 'UserAccount'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -16,7 +15,10 @@ class UserAccount(Base,SerializerMixin):
     created_date = Column(DateTime, server_default=func.now())
     updated_date = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
-    def to_dict(self):
-        data=super().to_dict
-        data["user_type"]=str(self.user_type)
-        return data
+    def as_dict(self):
+        result = {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        result["user_type"]=str(self.user_type)
+        for key in ["created_date","updated_date"]:
+            if key in result and result[key] is not None:
+                result[key] = result[key].isoformat()
+        return result

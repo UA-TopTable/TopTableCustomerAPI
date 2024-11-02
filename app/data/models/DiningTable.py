@@ -1,10 +1,9 @@
 from sqlalchemy import Column, Integer, String, Text, Enum, ForeignKey
 from sqlalchemy.orm import relationship
-from sqlalchemy_serializer import SerializerMixin
 from . import Base
 
 
-class DiningTable(Base,SerializerMixin):
+class DiningTable(Base):
     __tablename__ = 'DiningTable'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -19,8 +18,8 @@ class DiningTable(Base,SerializerMixin):
 
     serialize_rules=("-reservations.dining_tables",)
 
-    def to_dict(self):
-        data=super().to_dict()
-        data["table_type"]=str(self.table_type)
-        return data
+    def as_dict(self):
+        result = {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        result["table_type"]=str(self.table_type)
+        return result
 
