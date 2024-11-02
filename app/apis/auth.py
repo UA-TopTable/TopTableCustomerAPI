@@ -2,7 +2,7 @@ import os
 import boto3
 from flask import current_app, jsonify, redirect, request, url_for
 from flask_restx import Namespace,Resource,fields
-from services.auth_service import confirm_sign_up
+from services.auth_service import get_user
 from secret import AWS_COGNITO_HOSTED_URL,API_URL
 
 api=Namespace("auth",path="/api/v1/auth",description="Authentication operations")
@@ -38,3 +38,12 @@ class Redirect(Resource):
             return resp
         else:
             return "code not returned",400
+        
+@api.route("/get_current_user") #this route can be used for testing
+class GetCurrentUser(Resource):
+    def get(self):
+        if "access_token" not in request.cookies:
+            return redirect("/api/v1/auth/login")
+        else:
+            access_token=request.cookies.get("access_token")
+            return get_user(access_token)
