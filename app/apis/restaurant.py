@@ -1,7 +1,7 @@
 from services.db_service import get_all_restaurants
 from flask_restx import Namespace, Resource
 
-api=Namespace("restaurant",description="Operations for getting the restaurant information")
+api=Namespace("restaurant",path="/api/v1/restaurant",description="Operations for getting the restaurant information")
 
 @api.route("/")
 class Restaurant(Resource):

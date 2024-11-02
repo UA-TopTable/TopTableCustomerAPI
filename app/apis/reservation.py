@@ -5,7 +5,7 @@ from sqlalchemy.exc import IntegrityError
 from util.utils import parse_time_slot
 from services.db_service import add_reservation, get_reservation
 
-api=Namespace("reservation",description="Operations for reservations")
+api=Namespace("reservation",path="/api/v1/reservation",description="Operations for reservations")
 
 @api.route('/')
 class Reservation(Resource):
@@ -62,7 +62,7 @@ class Reservation(Resource):
             return result.get('id'), 201
         except IntegrityError as e:
             print(e)
-            return f'Invalid request', 400
+            return 'Invalid request', 400
 
 @api.route('/<int:reservation_id>')
 class ReservationById(Resource):
