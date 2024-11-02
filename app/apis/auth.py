@@ -10,20 +10,6 @@ api=Namespace("auth",path="/api/v1/auth",description="Authentication operations"
 
 cognito=boto3.client('cognito-idp',AWS_REGION)
 
-new_request_metadata_model=api.model("new_request_metadata",{
-    "DeviceKey":fields.String,
-    "DeviceGroupKey":fields.String
-})
-
-login_response_model=api.model("login_response",{
-    "AccessToken":fields.String(),
-    "ExpiresIn":fields.Integer(),
-    "TokenType":fields.String(),
-    "RefreshToken":fields.String(),
-    "IdToken":fields.String(),
-    "NewDeviceMetadata":fields.Nested(new_request_metadata_model)
-})
-
 @api.route("/login")
 class Login(Resource):
     @api.doc('login via hosted ui')
