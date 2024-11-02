@@ -36,54 +36,37 @@
                             <input type="text" class="form-control" id="user_id" required>
                         </div>
                         <div class="form-group">
-                            <label for="restaurant_id">Restaurant ID:</label>
-                            <input type="text" class="form-control" id="restaurant_id" required>
+                            <label for="restaurant_id">Restaurant:</label>
+                            <select class="form-control" id="restaurant_id" required>
+                                <!-- Options will be populated dynamically -->
+                            </select>
                         </div>
                         <div class="form-group">
-                            <label for="dining_table_id">Dining Table ID:</label>
-                            <input type="text" class="form-control" id="dining_table_id" required>
+                            <label for="reservation_date">Reservation Date:</label>
+                            <input type="date" class="form-control" id="reservation_date" required
+                                onchange="fetchAvailableTablesAndSlots()">
+                        </div>
+                        <div class="form-group">
+                            <label for="dining_table_id">Dining Table:</label>
+                            <select class="form-control" id="dining_table_id" required>
+                                <!-- Options will be populated dynamically -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="reservation_time_slot">Reservation Time Slot:</label>
+                            <select class="form-control" id="reservation_time_slot" required>
+                                <!-- Options will be populated dynamically -->
+                            </select>
                         </div>
                         <div class="form-group">
                             <label for="number_of_people">Number of People:</label>
                             <input type="number" class="form-control" id="number_of_people" required>
                         </div>
                         <div class="form-group">
-                            <label for="reservation_date">Reservation Date:</label>
-                            <input type="date" class="form-control" id="reservation_date" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="reservation_time_slot">Reservation Time Slot:</label>
-                            <select class="form-control" id="reservation_time_slot" required>
-                                <option value="10:00-10:30">10:00 - 10:30</option>
-                                <option value="10:30-11:00">10:30 - 11:00</option>
-                                <option value="11:00-11:30">11:00 - 11:30</option>
-                                <option value="11:30-12:00">11:30 - 12:00</option>
-                                <option value="12:00-12:30">12:00 - 12:30</option>
-                                <option value="12:30-13:00">12:30 - 13:00</option>
-                                <option value="13:00-13:30">13:00 - 13:30</option>
-                                <option value="13:30-14:00">13:30 - 14:00</option>
-                                <option value="14:00-14:30">14:00 - 14:30</option>
-                                <option value="14:30-15:00">14:30 - 15:00</option>
-                                <option value="15:00-15:30">15:00 - 15:30</option>
-                                <option value="15:30-16:00">15:30 - 16:00</option>
-                                <option value="16:00-16:30">16:00 - 16:30</option>
-                                <option value="16:30-17:00">16:30 - 17:00</option>
-                                <option value="17:00-17:30">17:00 - 17:30</option>
-                                <option value="17:30-18:00">17:30 - 18:00</option>
-                                <option value="18:00-18:30">18:00 - 18:30</option>
-                                <option value="18:30-19:00">18:30 - 19:00</option>
-                                <option value="19:00-19:30">19:00 - 19:30</option>
-                                <option value="19:30-20:00">19:30 - 20:00</option>
-                                <option value="20:00-20:30">20:00 - 20:30</option>
-                                <option value="20:30-21:00">20:30 - 21:00</option>
-                                <option value="21:00-21:30">21:00 - 21:30</option>
-                                <option value="21:30-22:00">21:30 - 22:00</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
                             <label for="special_requests">Special Requests:</label>
-                            <input type="text" class="form-control" id="special_requests">
+                            <textarea class="form-control" id="special_requests" rows="3"></textarea>
                         </div>
+
                     </form>
                 </div>
 
@@ -99,6 +82,63 @@
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            fetch('/api/v1/restaurant')
+                .then(response => response.json())
+                .then(data => {
+                    const restaurantSelect = document.getElementById('restaurant_id');
+                    data.forEach(restaurant => {
+                        const option = document.createElement('option');
+                        option.value = restaurant.id;
+                        option.textContent = restaurant.name;
+                        restaurantSelect.appendChild(option);
+                    });
+                });
+        });
+
+        function fetchAvailableTablesAndSlots() {
+            const restaurantId = document.getElementById('restaurant_id').value;
+            const reservationDate = document.getElementById('reservation_date').value;
+
+            if (restaurantId && reservationDate) {
+                fetch(`/api/v1/table?restaurant_id=${restaurantId}&reservation_date=${reservationDate}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const tableSelect = document.getElementById('dining_table_id');
+                        const slotSelect = document.getElementById('reservation_time_slot');
+
+                        tableSelect.innerHTML = '';
+                        slotSelect.innerHTML = '';
+                        console.log(data);
+                        tableSelect.addEventListener('change', function () {
+                            const selectedTableId = tableSelect.value;
+                            const selectedTable = data.find(table => table.id == selectedTableId);
+                            slotSelect.innerHTML = '';
+                            if (selectedTable) {
+                                selectedTable.available_time_slots.forEach(slot => {
+                                    const option = document.createElement('option');
+                                    option.value = slot;
+                                    option.textContent = slot;
+                                    slotSelect.appendChild(option);
+                                });
+                            }
+                        });
+
+                        data.forEach(table => {
+                            console.log(table);
+                            const option = document.createElement('option');
+                            option.value = table.id;
+                            option.textContent = `No: ${table.table_number} - Type:  ${table.table_type} - Seats:  ${table.number_of_seats} - ${table.description}`;
+                            tableSelect.appendChild(option);
+                        });
+
+                        // Trigger change event to populate slots for the initially selected table
+                        tableSelect.dispatchEvent(new Event('change'));
+                    });
+            }
+        }
+    </script>
     <script>
         function submitReservation() {
             const formData = {
@@ -131,8 +171,8 @@
                         response.text().then(text => {
                             alert('Reservation saved id: ' + text);
                             $('#reservationModal').modal('hide');
+                            window.location.href = `/api/v1/ui/reservation/${text}`;
                         });
-                        $('#reservationModal').modal('hide');
                     } else {
                         alert('Error: ' + response.statusText);
                     }

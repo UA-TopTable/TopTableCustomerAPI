@@ -16,7 +16,9 @@ class UserAccount(Base,SerializerMixin):
     created_date = Column(DateTime, server_default=func.now())
     updated_date = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
-    def to_dict(self):
-        data=super().to_dict
-        data["user_type"]=str(self.user_type)
-        return data
+    def as_dict(self):
+        result = {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        for key in ['created_date', 'updated_date']:
+            if key in result and result[key] is not None:
+                result[key] = result[key].isoformat()
+        return result

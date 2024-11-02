@@ -19,6 +19,7 @@ docker==7.1.0
 Flask==3.0.3
 flask-restx==1.3.0
 graphql-core==3.2.5
+greenlet==3.1.1
 idna==3.10
 importlib_resources==6.4.5
 iniconfig==2.0.0
@@ -46,13 +47,17 @@ packaging==24.1
 pathable==0.4.3
 pluggy==1.5.0
 ply==3.11
+psycopg2-binary==2.9.9
 py-partiql-parser==0.5.6
 pycparser==2.22
 pydantic==2.9.2
 pydantic_core==2.23.4
+PyMySQL==1.1.1
 pyparsing==3.2.0
 pytest==8.3.3
 pytest-flask==1.3.0
+pytest-html==4.1.1
+pytest-metadata==3.1.1
 python-dateutil==2.9.0.post0
 pytz==2024.2
 PyYAML==6.0.2
@@ -64,8 +69,10 @@ retry2==0.9.5
 rfc3339-validator==0.1.4
 rpds-py==0.20.0
 s3transfer==0.10.3
-setuptools==75.2.0
+setuptools==70.3.0
 six==1.16.0
+SQLAlchemy==2.0.29
+sqlalchemy-serializer==1.4.22
 sympy==1.13.3
 typing_extensions==4.12.2
 urllib3==2.2.3
