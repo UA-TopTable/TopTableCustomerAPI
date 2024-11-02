@@ -16,10 +16,7 @@ class DiningTable(Base):
     restaurant = relationship("Restaurant", back_populates="dining_tables",lazy="joined")
     reservations = relationship("Reservation", back_populates="dining_table",lazy="joined")
 
-    serialize_rules=("-reservations.dining_tables",)
-
     def as_dict(self):
         result = {c.name: getattr(self, c.name) for c in self.__table__.columns}
-        result["table_type"]=str(self.table_type)
         return result
 

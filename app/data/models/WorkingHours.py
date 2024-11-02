@@ -16,6 +16,8 @@ class WorkingHours(Base):
     )
 
     def as_dict(self):
-        result = {c.name: getattr(self, c.name) for c in self.__table__.columns}
-        result["day_of_week"]=str(self.day_of_week)
-        return result
+            result = {c.name: getattr(self, c.name) for c in self.__table__.columns}
+            for key in ['opening_time', 'closing_time']:
+                if key in result and result[key] is not None:
+                    result[key] = result[key].isoformat()
+            return result

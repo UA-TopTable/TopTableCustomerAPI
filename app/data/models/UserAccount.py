@@ -17,8 +17,7 @@ class UserAccount(Base):
 
     def as_dict(self):
         result = {c.name: getattr(self, c.name) for c in self.__table__.columns}
-        result["user_type"]=str(self.user_type)
-        for key in ["created_date","updated_date"]:
+        for key in ['created_date', 'updated_date']:
             if key in result and result[key] is not None:
                 result[key] = result[key].isoformat()
         return result
