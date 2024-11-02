@@ -169,9 +169,7 @@
                 .then(response => {
                     if (response.status === 201) {
                         response.text().then(text => {
-                            alert('Reservation saved id: ' + text);
-                            $('#reservationModal').modal('hide');
-                            window.location.href = `/api/v1/ui/reservation/${text}`;
+                            window.location.href = `/ui/reservation/${text}`;
                         });
                     } else {
                         alert('Error: ' + response.statusText);

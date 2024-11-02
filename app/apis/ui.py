@@ -3,7 +3,7 @@ from flask import make_response, render_template
 from flask_restx import Namespace,Resource
 from services.db_service import get_reservation, get_restaurant
 
-api=Namespace("ui",description="UI-related endpoints")
+api=Namespace("ui",path="/ui",description="UI-related endpoints")
 
 @api.route("/restaurant/<int:id>")
 class RestaurantPage(Resource):

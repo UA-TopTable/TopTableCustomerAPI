@@ -2,7 +2,7 @@ from flask import request
 from services.db_service import get_all_tables, get_table_available_time_slots
 from flask_restx import Namespace, Resource
 
-api=Namespace("table",description="Operations for getting the table information")
+api=Namespace("table", path="/api/v1/table",description="Operations for getting the table information")
 
 @api.route("/")
 class RestaurantTableAvailability(Resource):

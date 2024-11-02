@@ -5,7 +5,7 @@ from sqlalchemy.exc import IntegrityError
 from util.utils import parse_time_slot
 from services.db_service import add_reservation, get_reservation
 
-api=Namespace("reservation",description="Operations for reservations")
+api=Namespace("reservation", path="/api/v1/reservation", description="Operations for reservations")
 
 @api.route('/')
 class Reservation(Resource):

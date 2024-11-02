@@ -16,12 +16,12 @@ def create_app():
         "AWS_COGNITO_REFRESH_FLOW_ENABLED":True,
         "AWS_COGNITO_REFRESH_COOKIE_ENCRYPTED":True,
     })
-    # create_mock_datas()
+    create_mock_datas()
     return app
 
 from services.db_service import add_restaurant, add_table, add_working_hours, delete_all_data, add_reservation, add_user_account
 def create_mock_datas():
-    # delete_all_data() # Uncomment this line to delete all data
+    delete_all_data() # Uncomment this line to delete all data
     user_data = {
         "full_name": "Test User",
         "email": "testuser@example.com",

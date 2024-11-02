@@ -9,7 +9,7 @@ from .ui import api as api_ui
 
 blueprint = Blueprint('endpoints', __name__)
 
-api = Api(version="1.0", title="TopTable Customer API", description="TopTable API for the customer side", prefix="/api/v1")
+api = Api(version="1.0", title="TopTable Customer API", description="TopTable API for the customer side", prefix="/")
 
 api.add_namespace(api_auth)
 api.add_namespace(api_reservation)

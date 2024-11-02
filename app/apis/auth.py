@@ -3,7 +3,7 @@ import boto3
 from flask import current_app, jsonify, request
 from flask_restx import Namespace,Resource,fields
 
-api=Namespace("auth",description="Authentication operations")
+api=Namespace("auth",path="/api/v1/auth", description="Authentication operations")
 
 cognito=boto3.client('cognito-idp',os.environ["AWS_REGION"])
 
