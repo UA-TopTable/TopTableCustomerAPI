@@ -71,8 +71,7 @@ rpds-py==0.20.0
 s3transfer==0.10.3
 setuptools==70.3.0
 six==1.16.0
-SQLAlchemy==2.0.29
-sqlalchemy-serializer==1.4.22
+SQLAlchemy==2.0.36
 sympy==1.13.3
 typing_extensions==4.12.2
 urllib3==2.2.3

@@ -62,7 +62,7 @@ class Reservation(Resource):
             return result.get('id'), 201
         except IntegrityError as e:
             print(e)
-            return f'Invalid request', 400
+            return 'Invalid request', 400
 
 @api.route('/<int:reservation_id>')
 class ReservationById(Resource):

@@ -10,6 +10,7 @@ from data.db_engine import engine
 from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 from sqlalchemy import and_
+from sqlalchemy.orm.exc import NoResultFound
 
 def add_reservation(user_id,restaurant_id,dining_table_id,number_of_people,reservation_start_time
                     ,reservation_end_time,special_requests='',reservation_code=''):
@@ -194,3 +195,10 @@ def get_user_account(user_id):
     with Session(engine) as session:
         user = session.get(UserAccount, user_id)
         return user.as_dict() if user else None
+    
+def get_user_by_email(email):
+    try:
+        with Session(engine) as session:
+            return session.query(UserAccount).filter(UserAccount.email==email).one()
+    except NoResultFound:
+        return None
