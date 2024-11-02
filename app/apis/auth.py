@@ -1,98 +1,28 @@
 import os
 import boto3
-from flask import current_app, jsonify, request
+from flask import current_app, jsonify, redirect, request
 from flask_restx import Namespace,Resource,fields
+from secret import AWS_COGNITO_HOSTED_URL,API_URL
 
 api=Namespace("auth",description="Authentication operations")
 
 cognito=boto3.client('cognito-idp',os.environ["AWS_REGION"])
 
-new_request_metadata_model=api.model("new_request_metadata",{
-    "DeviceKey":fields.String,
-    "DeviceGroupKey":fields.String
-})
-
-login_response_model=api.model("login_response",{
-    "AccessToken":fields.String(),
-    "ExpiresIn":fields.Integer(),
-    "TokenType":fields.String(),
-    "RefreshToken":fields.String(),
-    "IdToken":fields.String(),
-    "NewDeviceMetadata":fields.Nested(new_request_metadata_model)
-})
-
 @api.route("/log_in")
 class Login(Resource):
-    @api.doc('login')
-    @api.expect(api.model('Login', {
-        "email": fields.String(required=True),
-        "password": fields.String(required=True)
-    }), validate=True)
-    @api.response(200,description="success",model=login_response_model)
-    @api.response(400,"wrong response body")
-    @api.response(401,"wrong email/password")
-    def post(self):
-        try:
-            data=request.json
-            email=data.get("email")
-            password=data.get("password")
-            print(email,password)
-            response=cognito.initiate_auth(
-                AuthFlow="USER_PASSWORD_AUTH",
-                AuthParameters={
-                    "USERNAME":email,
-                    "PASSWORD":password
-                },
-                ClientId=current_app.config["AWS_COGNITO_USER_POOL_CLIENT_ID"]
-            )
-            return jsonify(response.get("AuthenticationResult"),200)
-        except KeyError:
-            print(response)
-            return "Incorrect input",401
-        except cognito.exceptions.NotAuthorizedException:
-            return "Wrong username/password",401
+    @api.doc('login via hosted ui')
+    def get(self):
+        return redirect(f"{AWS_COGNITO_HOSTED_URL}&redirect_uri={API_URL}/api/v1/redirect")
         
-@api.route("/sign_up")
-class SignUp(Resource):
-    @api.doc("sign up")
-    @api.expect({
-        "email":fields.String(required=True),
-        "password":fields.String(required=True),
-        "name":fields.String(required=True),
-        "phone_number":fields.String(required=True)
-    },validate=True)
-    @api.response(201,"user created")
-    @api.response(400,"wrong body")
-    @api.response(409,"username already exists")
+@api.route("/sign_out")
+class SignOut(Resource):
+    @api.doc("sign out")
+    @api.response(301,"redirecting to home page")
     def post(self):
-        try:
-            data=request.json
-            email=data.get("email")
-            password=data.get("password")
-            name=data.get("name")
-            phone_number=data.get("phone_number")
-
-            cognito.sign_up(
-                ClientId=current_app.config["AWS_COGNITO_USER_POOL_CLIENT_ID"],
-                Username=email,
-                Password=password,
-                UserAttributes=[
-                    {
-                        "Name": "name",
-                        "Value":name
-                    },
-                    {
-                        "Name": "phone_number",
-                        "Value":phone_number
-                    }
-                ]
-            )
-            return "User created. Confirm registration via email"
-        except KeyError:
-            return "Wrong Body",400
-        except cognito.exceptions.UsernameExistsException:
-            return "Username already exists",409
-        
+        resp=redirect("/")
+        resp.delete_cookie("access_token")
+        return resp
+    
 @api.route("/sign_up/confirm")
 class ConfirmSignUp(Resource):
     @api.doc("confirm sign up")
@@ -122,22 +52,17 @@ class ConfirmSignUp(Resource):
         except cognito.exceptions.ExpiredCodeException:
             return "Confirmation code expired",410
         
-@api.route("/sign_out")
-class SignOut(Resource):
-    @api.doc("sign out")
+@api.route("/redirect")
+class Redirect(Resource):
     @api.expect({
-        "access_token":fields.String(required=True)
-    },validate=True)
-    @api.response(200,"sign out successful")
-    @api.response(400,"Wrong body")
-    @api.response(401,"invalid access token")
-    def post(self):
-        try:
-            data=request.json
-            access_token=data.get("access_token")
-            cognito.global_sign_out(AccessToken=access_token)
-            return "signed out successful",200
-        except KeyError:
-            return "Wrong body",400
-        except cognito.exceptions.NotAuthorizedException:
-            return "Invalid access token",401
+        "code":fields.String(required=True)
+    })
+    @api.response(400,"code not returned")
+    @api.response(301,"redirect to home page")
+    def get(self):
+        if "code" in request.args:
+            resp=redirect("/")
+            resp.set_cookie("access_token",request.args.get("code"),httponly=True,secure=True)
+            return resp
+        else:
+            return "code not returned",400

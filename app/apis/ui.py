@@ -39,3 +39,12 @@ class ReservationPage(Resource):
             200,
             {'Content-Type': 'text/html'}
         )
+
+@api.route("/auth/confirm")
+class ConfirmRegistration(Resource):
+    def get(self):
+        return make_response(
+            render_template("confirmRegistration.html"),
+            200,
+            {'Content-Type':'text/html'}
+        )
