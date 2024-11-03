@@ -39,13 +39,14 @@
 
           <div class="col-md-4">
             <div class="card bg-secondary-subtle" style="width: 18rem;">
-              <img src="{{ url_for('static', filename=restaurant.photo) }}" class="card-img-top card-img"
-                alt="restaurant{{ loop.index }}">
+              <!-- Change src to display photos -->
+              <img src="{{restaurant.restaurant_image}}" class="card-img-top card-img"
+                alt="{{ restaurant.restaurant_image }}">
               <div class="card-body">
                 <h5 class="card-title">{{ restaurant.name }}</h5>
                 <p class="card-text">{{ restaurant.description }}</p>
                 <p class="card-text">{{ restaurant.address }}</p>
-                <a href="/book_restaurant/?id={{ restaurant.id }}" class="btn btn-primary">Book a table now</a>
+                <a href="/ui/book_restaurant/{{ restaurant.id }}" class="btn btn-primary">Book a table now</a>
               </div>
             </div>
           </div>

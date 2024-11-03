@@ -213,6 +213,11 @@ def add_picture(picture_link, restaurant_id):
         session.add(picture)
         session.commit()
         return picture.as_dict() if picture else None
+    
+def get_pictures(restaurant_id):
+    with Session(engine) as session :
+        pictures = session.query(RestaurantPictures).filter(RestaurantPictures.restaurant_id == restaurant_id).all()
+        return [picture.as_dict() for picture in pictures] if pictures else None
 
 #TODO Test this function, not sure that it works well
 def modify_description(description, restaurant_id):

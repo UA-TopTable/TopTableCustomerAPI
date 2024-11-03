@@ -1,7 +1,8 @@
 import sys
-from flask import make_response, render_template
+from flask import make_response, render_template, request
 from flask_restx import Namespace,Resource
-from services.db_service import get_reservation, get_restaurant
+from services.db_service import get_reservation, get_restaurant, get_all_restaurants, get_pictures
+from services.auth_service import get_user
 
 api=Namespace("ui",path="/ui",description="UI-related endpoints")
 
@@ -36,6 +37,38 @@ class ReservationPage(Resource):
     def get(self):
         return make_response(
             render_template("new_reservation.html"),
+            200,
+            {'Content-Type': 'text/html'}
+        )
+    
+
+@api.route("/home")
+class HomePage(Resource):
+    def get(self):
+        restaurants = get_all_restaurants()
+        photos = []
+        return make_response(
+            render_template("index.html", restaurants=restaurants),
+            200,
+            {'Content-Type': 'text/html'}
+        )
+    
+
+@api.route("/book_restaurant/<int:id>")
+class BookRestaurantPage(Resource):
+    def get(self, id):
+        restaurant = get_restaurant(id)
+        pictures = get_pictures(id)
+        print(pictures)
+        # pictures = pictures if pictures is not None else []
+        #TODO: check if we correctly get the user
+        access_token=request.cookies.get("access_token")
+        user = get_user(access_token)
+        class tmpUser:
+            id=4
+        user=tmpUser()
+        return make_response(
+            render_template("book_restaurant.html", restaurant=restaurant, pictures=pictures, user=user),
             200,
             {'Content-Type': 'text/html'}
         )
