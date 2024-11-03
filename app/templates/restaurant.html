@@ -141,7 +141,7 @@
             formData.append('file', fileInput.files[0]);
             formData.append('restaurant_id', restaurantId);
 
-            fetch('http://localhost:5000/api/v1/upload/upload_picture', {
+            fetch('/api/v1/upload/upload_picture', {
                 method: 'POST',
                 body: formData
             })
@@ -190,7 +190,7 @@
             formData.append('description', descriptionInput.value);
             formData.append('restaurant_id', restaurantId);
 
-            fetch('http://localhost:5000/api/v1/upload/upload_description', {
+            fetch('/api/v1/upload/upload_description', {
                 method: 'POST',
                 body: formData
             })
