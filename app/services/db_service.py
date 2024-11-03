@@ -4,6 +4,7 @@ from data.models.DiningTable import DiningTable
 from data.models.Reservation import Reservation
 from data.models.Restaurant import Restaurant
 from data.models.UserAccount import UserAccount
+from data.models.RestaurantPictures import RestaurantPictures
 from sqlalchemy.orm import Session
 from data.db_engine import engine
     
@@ -202,3 +203,22 @@ def get_user_by_email(email):
             return session.query(UserAccount).filter(UserAccount.email==email).one()
     except NoResultFound:
         return None
+    
+def add_picture(picture_link, restaurant_id):
+    with Session(engine) as session :
+        picture = RestaurantPictures(
+            link = picture_link,
+            restaurant_id = restaurant_id
+        )
+        session.add(picture)
+        session.commit()
+        return picture.as_dict() if picture else None
+
+def modify_description(description, restaurant_id):
+    if description == '' or description is None :
+        description = ''
+    with Session(engine) as session :
+        restaurant = get_restaurant(restaurant_id)
+        restaurant.description = description
+        session.commit()
+        return restaurant.as_dict() if restaurant else None

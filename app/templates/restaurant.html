@@ -112,6 +112,95 @@
             });
     </script>
 
+    <h1>Upload a picture</h1>
+    <form id="uploadForm">
+        <label for="file">Select a picture :</label>
+        <input type="file" id="file" name="file" accept="image/*" required>
+
+        <label for="restaurant_id">Restaurant ID :</label>
+        <input type="number" id="restaurant_id" name="restaurant_id" required>
+
+        <button type="submit">Send</button>
+    </form>
+
+    <div id="response" style="margin-top: 20px;"></div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const formData = new FormData();
+            const fileInput = document.getElementById('file');
+            const restaurantIdInput = document.getElementById('restaurant_id');
+
+            if (fileInput.files.length === 0) {
+                alert('Veuillez sélectionner une image à uploader.');
+                return;
+            }
+
+            formData.append('file', fileInput.files[0]);
+            formData.append('restaurant_id', restaurantIdInput.value);
+
+            fetch('http://localhost:5000/api/v1/upload/upload_picture', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                document.getElementById('response').innerText = 'Image successfully uploaded !';
+            })
+            .catch(error => {
+                document.getElementById('response').innerText = 'Error : ' + error.message;
+            });
+        });
+    </script>
+
+    <h1>Modify the description</h1>
+    <form id="descriptionForm">
+        <label for="restaurant_id">Restaurant ID :</label>
+        <input type="number" id="restaurant_id" name="restaurant_id" required>
+
+        <label for="description">Description :</label>
+        <input type="text" id="description" name="description" required>
+
+        <button type="submit">Send</button>
+    </form>
+
+    <script>
+        document.getElementById('descriptionForm').addEventListener('submit', function(event) {
+            event.preventDefault(); 
+
+            const formData = new FormData();
+            const descriptionInput = document.getElementById('description');
+            const restaurantIdInput = document.getElementById('restaurant_id');
+
+            formData.append('description', descriptionInput.value);
+            formData.append('restaurant_id', restaurantIdInput.value);
+
+            fetch('http://localhost:5000/api/v1/upload/upload_description', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                document.getElementById('response').innerText = 'Description successfully modified';
+            })
+            .catch(error => {
+                document.getElementById('response').innerText = 'Error : ' + error.message;
+            });
+        });
+    </script>
+
 </body>
 
 </html>
