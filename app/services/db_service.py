@@ -214,6 +214,7 @@ def add_picture(picture_link, restaurant_id):
         session.commit()
         return picture.as_dict() if picture else None
 
+#TODO Test this function, not sure that it works well
 def modify_description(description, restaurant_id):
     if description == '' or description is None :
         description = ''
