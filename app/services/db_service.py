@@ -219,7 +219,7 @@ def get_pictures(restaurant_id):
         pictures = session.query(RestaurantPictures).filter(RestaurantPictures.restaurant_id == restaurant_id).all()
         return [picture.as_dict() for picture in pictures] if pictures else None
 
-#TODO Test this function, not sure that it works well
+
 def modify_description(description, restaurant_id):
     if description == '' or description is None :
         description = ''
