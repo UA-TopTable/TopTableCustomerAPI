@@ -46,8 +46,7 @@ class ImageUpload(Resource):
             s3_client.upload_fileobj(
                 file,
                 S3_BUCKET,
-                filename,
-                ExtraArgs={"ACL": "public-read", "ContentType": file.content_type}
+                filename
             )
 
             file_url = f"https://{S3_BUCKET}.s3.{S3_BUCKET}.amazonaws.com/{filename}"
