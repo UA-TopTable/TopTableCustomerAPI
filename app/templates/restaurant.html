@@ -123,7 +123,6 @@
         <button type="submit">Send</button>
     </form>
 
-    <div id="response" style="margin-top: 20px;"></div>
 
     <script>
         document.getElementById('uploadForm').addEventListener('submit', function(event) {
@@ -132,14 +131,15 @@
             const formData = new FormData();
             const fileInput = document.getElementById('file');
             const restaurantIdInput = document.getElementById('restaurant_id');
+            const restaurantId = restaurantIdInput.textContent;
 
             if (fileInput.files.length === 0) {
-                alert('Veuillez sélectionner une image à uploader.');
+                alert('Please select a picture to upload.');
                 return;
             }
 
             formData.append('file', fileInput.files[0]);
-            formData.append('restaurant_id', restaurantIdInput.value);
+            formData.append('restaurant_id', restaurantId);
 
             fetch('http://localhost:5000/api/v1/upload/upload_picture', {
                 method: 'POST',
@@ -163,7 +163,7 @@
     <h1>Modify the description</h1>
     <form id="descriptionForm">
         <label for="restaurant_id">Restaurant ID :</label>
-        <input type="number" id="restaurant_id" name="restaurant_id" required>
+        <input type="text" id="restaurant_id" name="restaurant_id" required>
 
         <label for="description">Description :</label>
         <input type="text" id="description" name="description" required>
@@ -178,9 +178,17 @@
             const formData = new FormData();
             const descriptionInput = document.getElementById('description');
             const restaurantIdInput = document.getElementById('restaurant_id');
+            const restaurantId = restaurantIdInput.textContent;
+            console.log("this is the restid :" + restaurantIdInput+":")
+            console.log("this is the description :" + descriptionInput+":")
+            
 
+            if (isNaN(restaurantId)) {
+                alert("Veuillez entrer un nombre valide pour le Restaurant ID.");
+                event.preventDefault();
+            }
             formData.append('description', descriptionInput.value);
-            formData.append('restaurant_id', restaurantIdInput.value);
+            formData.append('restaurant_id', restaurantId);
 
             fetch('http://localhost:5000/api/v1/upload/upload_description', {
                 method: 'POST',

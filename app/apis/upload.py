@@ -69,15 +69,17 @@ class DescriptionUpload(Resource):
     def post(self):
         description = request.form.get('description')
         restaurant_id = request.form.get('restaurant_id')
-
         if not restaurant_id:
             return {"message": "No restaurant ID given"}, 400
         if not description : 
             return {"message": "No description given"}, 400
         try:
             #Modify the DB with the new description
-            if modify_description(description, restaurant_id) is None :
-                return {"message": str(e)}, 500
+            returnedValue = modify_description(description, restaurant_id)
+            if returnedValue is None :
+                return {"message" : "No restaurant found"}, 501
+            elif returnedValue == '' :
+                return {"message" : "No restaurant found"}, 502
             return {"message": "Description successfully modified", "description":description, "restaurant_id": restaurant_id}, 200
         except Exception as e:
             return {"message": str(e)}, 500
