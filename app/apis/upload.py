@@ -76,7 +76,8 @@ class DescriptionUpload(Resource):
             return {"message": "No description given"}, 400
         try:
             #Modify the DB with the new description
-            modify_description(description, restaurant_id)
+            if modify_description(description, restaurant_id) is None :
+                return {"message": str(e)}, 500
             return {"message": "Description successfully modified", "description":description, "restaurant_id": restaurant_id}, 200
         except Exception as e:
             return {"message": str(e)}, 500

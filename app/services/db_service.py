@@ -218,6 +218,8 @@ def add_picture(picture_link, restaurant_id):
 def modify_description(description, restaurant_id):
     if description == '' or description is None :
         description = ''
+    if restaurant_id is None :
+        return None
     with Session(engine) as session :
         restaurant = get_restaurant(restaurant_id)
         restaurant.description = description
