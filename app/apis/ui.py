@@ -61,7 +61,7 @@ class BookRestaurantPage(Resource):
     def get(self, id):
         restaurant = get_restaurant(id)
         pictures = get_pictures(id)
-        parsed_url = urlparse(pictures[0].link)
+        parsed_url = urlparse(pictures[0]['link'])
         
         bucket_name = parsed_url.netloc.split('.')[0]
         object_key = parsed_url.path.lstrip('/')
@@ -72,7 +72,7 @@ class BookRestaurantPage(Resource):
                 ExpiresIn=3600  # Expiration en secondes (ici, 1 heure par défaut)
         )
         print(signed_url)
-        pictures[0].link = signed_url
+        pictures[0]['link'] = signed_url
         # pictures = pictures if pictures is not None else []
         #TODO: check if we correctly get the user
         #access_token=request.cookies.get("access_token")
