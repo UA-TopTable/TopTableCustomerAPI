@@ -48,9 +48,9 @@ class ReservationPage(Resource):
 class HomePage(Resource):
     def get(self):
         restaurants = get_all_restaurants()
-        for i in restaurants :
-            if restaurants[i]['restaurant_image'] != '' and not(restaurants[i]['restaurant_image'] is None) :
-                parsed_url = urlparse(restaurants[i]['restaurant_image'])
+        for restaurant in restaurants :
+            if restaurant['restaurant_image'] != '' and not(restaurant['restaurant_image'] is None) :
+                parsed_url = urlparse(restaurant['restaurant_image'])
                 
                 bucket_name = parsed_url.netloc.split('.')[0]
                 object_key = parsed_url.path.lstrip('/')
@@ -60,7 +60,7 @@ class HomePage(Resource):
                         Params={'Bucket': bucket_name, 'Key': object_key},
                         ExpiresIn=3600  # Expiration en secondes (ici, 1 heure par défaut)
                 )
-                restaurants[i]['restaurant_image'] = signed_url
+                restaurant['restaurant_image'] = signed_url
         return make_response(
             render_template("index.html", restaurants=restaurants),
             200,
