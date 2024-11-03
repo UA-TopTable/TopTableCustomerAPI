@@ -44,7 +44,7 @@ def get_user(authorization_token):
             return add_user_account(user.as_dict())
         else:
             return user.as_dict()
-    except cognito.exceptions.ResourceNotFoundException:
+    except cognito.exceptions.NotAuthorizedException:
         return None
 
 def exchange_token(authorization_code):
