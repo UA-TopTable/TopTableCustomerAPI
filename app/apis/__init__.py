@@ -6,7 +6,6 @@ from .reservation import api as api_reservation
 from .restaurant import api as api_restaurant
 from .dining_table import api as api_table
 from .ui import api as api_ui
-from .upload import api as api_upload
 
 blueprint = Blueprint('endpoints', __name__)
 
@@ -17,4 +16,3 @@ api.add_namespace(api_reservation)
 api.add_namespace(api_restaurant)
 api.add_namespace(api_ui)
 api.add_namespace(api_table)
-api.add_namespace(api_upload)
