@@ -1,19 +1,24 @@
 from datetime import datetime
-import os
 from flask import Flask
-
 from apis import api
-from secret import FLASK_SECRET_KEY
+from dotenv import load_dotenv
+load_dotenv()
 
+from secret import APP_PORT, FLASK_SECRET_KEY
 
 def create_app():
     app = Flask(__name__)
     api.init_app(app)
-    app.secret_key=FLASK_SECRET_KEY
+    app.secret_key = FLASK_SECRET_KEY
     # create_mock_datas()
     return app
 
-from services.db_service import add_restaurant, add_table, add_working_hours, delete_all_data, add_reservation, add_user_account
+if __name__ == "__main__":
+    app = create_app()
+    app.run(port=APP_PORT, debug=True)
+
+
+from services.db_service import add_restaurant, add_table, add_working_hours, delete_all_data, add_reservation, save_user_account
 def create_mock_datas():
     delete_all_data() # Uncomment this line to delete all data
     user_data = {
@@ -24,7 +29,7 @@ def create_mock_datas():
         "user_type": "customer",
         "password_hash": "passwordhsh"
     }
-    user = add_user_account(user_data)
+    user = save_user_account(user_data)
     user_id = user.get('id')
     print('user id', user_id)
     restaurant_data = {
