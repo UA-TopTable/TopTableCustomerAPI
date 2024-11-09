@@ -10,7 +10,7 @@ class UserAccount(Base):
     email = Column(String(100), unique=True, nullable=False)
     phone = Column(String(15))
     profile_image_url = Column(String(255))
-    user_type = Column(Enum('admin', 'customer', 'staff'), nullable=False)
+    user_type = Column(Enum('admin', 'customer', 'staff'), default='customer', nullable=False)
     password_hash = Column(String(255), nullable=False)
     created_date = Column(DateTime, server_default=func.now())
     updated_date = Column(DateTime, server_default=func.now(), onupdate=func.now())

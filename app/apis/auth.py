@@ -1,12 +1,10 @@
-import os
-from urllib import response
 import boto3
-from flask import jsonify, redirect, request, url_for
+from flask import redirect, request
 from flask_restx import Namespace,Resource,fields
 from services.auth_service import exchange_token, get_user
-from secret import AWS_COGNITO_HOSTED_URL,API_URL, AWS_COGNITO_USER_POOL_CLIENT_ID, AWS_REGION
+from secret import API_URL, AWS_COGNITO_USER_POOL_CLIENT_ID, AWS_REGION, COGNITO_DOMAIN
 
-api=Namespace("auth",path="/api/v1/auth",description="Authentication operations")
+api=Namespace("auth",path="/auth",description="Authentication operations")
 
 cognito=boto3.client('cognito-idp',AWS_REGION)
 
@@ -14,7 +12,7 @@ cognito=boto3.client('cognito-idp',AWS_REGION)
 class Login(Resource):
     @api.doc('login via hosted ui')
     def get(self):
-        return redirect(f"{AWS_COGNITO_HOSTED_URL}&client_id={AWS_COGNITO_USER_POOL_CLIENT_ID}&redirect_uri={API_URL}/api/v1/auth/redirect")
+        return redirect(f"https://{COGNITO_DOMAIN}/login?&client_id={AWS_COGNITO_USER_POOL_CLIENT_ID}&redirect_uri={API_URL}/auth/callback&response_type=code")
         
 @api.route("/sign_out")
 class SignOut(Resource):
@@ -25,7 +23,7 @@ class SignOut(Resource):
         resp.delete_cookie("access_token")
         return resp
         
-@api.route("/redirect")
+@api.route("/callback")
 class Redirect(Resource):
     @api.expect({
         "code":fields.String(required=True)
@@ -36,7 +34,8 @@ class Redirect(Resource):
     def get(self):
         if "code" in request.args:
             token=exchange_token(request.args.get("code"))
-            resp=redirect("/") #TODO: change to restaurant home page (when we have one)
+            print(token)
+            resp=redirect("/") #TODO: change it later
             resp.set_cookie("access_token",token,httponly=True,secure=True)
             return resp
         else:
@@ -46,7 +45,9 @@ class Redirect(Resource):
 class GetCurrentUser(Resource):
     def get(self):
         if "access_token" not in request.cookies:
-            return redirect("/api/v1/auth/login")
+            return redirect("/auth/login")
         else:
             access_token=request.cookies.get("access_token")
+            if(access_token is None):
+                return "no access token",400
             return get_user(access_token)
