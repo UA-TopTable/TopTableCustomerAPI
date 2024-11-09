@@ -3,7 +3,7 @@ from flask_restx import Namespace, Resource, fields, Api
 from botocore.exceptions import NoCredentialsError, PartialCredentialsError
 from flask import Flask, request, jsonify
 from werkzeug.utils import secure_filename
-from data.db_secrets import DATABASE_URL
+from data.db_engine import DATABASE_URL
 from services.db_service import add_picture, modify_description
 
 S3_BUCKET="iapbucket"
