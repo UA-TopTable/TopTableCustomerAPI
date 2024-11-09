@@ -1,29 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'base.html' %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reservation Details</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-</head>
-
-<body>
+{% block content %}
     <div class="container mt-5">
         <h1 class="mb-4">Reservation Details</h1>
         {% if reservation %}
         <div class="card">
             <div class="card-body">
-                <p><strong>User ID:</strong> {{ reservation.user_id }}</p>
-                <p><strong>Restaurant ID:</strong> {{ reservation.restaurant_id }}</p>
-                <p><strong>Dining Table ID:</strong> {{ reservation.dining_table_id }}</p>
-                <p><strong>Number of People:</strong> {{ reservation.number_of_people }}</p>
-                <p><strong>Reservation Start Time:</strong> {{ reservation.reservation_start_time }}</p>
-                <p><strong>Reservation End Time:</strong> {{ reservation.reservation_end_time }}</p>
-                <p><strong>Status:</strong> {{ reservation.status }}</p>
-                <p><strong>Special Requests:</strong> {{ reservation.special_requests }}</p>
-                <p><strong>Reservation Code:</strong> {{ reservation.reservation_code }}</p>
-                <p><strong>Reservation ID:</strong> {{ reservation.id }}</p>
+                <p><strong><i class="fas fa-user"></i> User ID:</strong> {{ reservation.user_id }}</p>
+                <p><strong><i class="fas fa-utensils"></i> Restaurant ID:</strong> {{ reservation.restaurant_id }}</p>
+                <p><strong><i class="fas fa-utensils"></i> Dining Table ID:</strong> {{ reservation.dining_table_id }}</p>
+                <p><strong><i class="fas fa-user-group"></i> Number of People:</strong> {{ reservation.number_of_people }}</p>
+                <p><strong><i class="fas fa-clock"></i> Reservation Start Time:</strong> {{ reservation.reservation_start_time }}</p>
+                <p><strong><i class="fas fa-clock"></i> Reservation End Time:</strong> {{ reservation.reservation_end_time }}</p>
+                <p><strong><i class="fas fa-circle-info"></i> Status:</strong> {{ reservation.status }}</p>
+                <p><strong><i class="fas fa-bell"></i> Special Requests:</strong> {{ reservation.special_requests }}</p>
+                <p><strong><i class="fas fa-id-card"></i> Reservation Code:</strong> {{ reservation.reservation_code }}</p>
+                <p><strong><i class="fas fa-id-card"></i> Reservation ID:</strong> {{ reservation.id }}</p>
             </div>
         </div>
         {% else %}
@@ -32,9 +24,8 @@
         </div>
         {% endif %}
     </div>
+
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-</body>
-
-</html>
+{% endblock %}
