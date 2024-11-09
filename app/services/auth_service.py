@@ -34,7 +34,6 @@ def get_user_details_from_cognito(access_token):
         "Accept": "*/*",
         "Host": COGNITO_DOMAIN,
         "Accept-Encoding": "gzip, deflate, br",
-        "Connection": "keep-alive"
     }
 
     response = requests.get(url, headers=headers)
