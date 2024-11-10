@@ -46,7 +46,7 @@ def get_user_details_from_cognito(access_token):
         return None
     
 def exchange_token(authorization_code):
-    print('Exchange token', authorization_code, COGNITO_DOMAIN,AWS_COGNITO_USER_POOL_CLIENT_ID,AWS_COGNITO_USER_POOL_CLIENT_SECRET, API_URL)
+    print('Exchange token', authorization_code, COGNITO_DOMAIN, AWS_COGNITO_USER_POOL_CLIENT_ID,AWS_COGNITO_USER_POOL_CLIENT_SECRET, API_URL)
     message = bytes(f"{AWS_COGNITO_USER_POOL_CLIENT_ID}:{AWS_COGNITO_USER_POOL_CLIENT_SECRET}",'utf-8')
     secret_hash = base64.b64encode(message).decode()
     payload = {
