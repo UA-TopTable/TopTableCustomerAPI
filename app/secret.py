@@ -6,3 +6,4 @@ AWS_COGNITO_USER_POOL_CLIENT_SECRET = os.getenv("COGNITO_USER_POOL_CLIENT_SECRET
 API_URL = os.getenv("API_URL", "http://localhost:5000")
 FLASK_SECRET_KEY = os.getenv("FLASK_SECRET_KEY", "test")
 APP_PORT = os.getenv("PORT", 5000)
+ENV = os.getenv("ENV", "development")

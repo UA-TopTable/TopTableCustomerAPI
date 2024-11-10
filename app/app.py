@@ -4,10 +4,14 @@ from apis import api
 from dotenv import load_dotenv
 load_dotenv()
 
-from secret import APP_PORT, FLASK_SECRET_KEY
+from secret import APP_PORT, FLASK_SECRET_KEY, ENV
+from flask_talisman import Talisman
 
 def create_app():
     app = Flask(__name__)
+    print("Running in ENV:", ENV)
+    if ENV == "production":
+        Talisman(app, force_https=True)
     api.init_app(app)
     app.secret_key = FLASK_SECRET_KEY
     # create_mock_datas()
