@@ -14,7 +14,7 @@ def create_app():
         Talisman(app, force_https=True)
     api.init_app(app)
     app.secret_key = FLASK_SECRET_KEY
-    # create_mock_datas()
+    create_mock_datas()
     return app
 
 if __name__ == "__main__":
@@ -24,13 +24,13 @@ if __name__ == "__main__":
 
 from services.db_service import add_restaurant, add_table, add_working_hours, delete_all_data, add_reservation, save_user_account
 def create_mock_datas():
-    delete_all_data() # Uncomment this line to delete all data
+    #delete_all_data() # Uncomment this line to delete all data
     user_data = {
-        "full_name": "Test User",
+        "full_name": "Test User Restaurant Owner",
         "email": "testuser@example.com",
         "phone": "1234567890",
         "profile_image_url": "http://example.com/image.jpg",
-        "user_type": "customer",
+        "user_type": "admin",
         "password_hash": "passwordhsh"
     }
     user = save_user_account(user_data)
