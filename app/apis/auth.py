@@ -36,7 +36,7 @@ class Redirect(Resource):
             token=exchange_token(request.args.get("code"))
             print(token)
             resp=redirect("/") #TODO: change it later
-            resp.set_cookie("access_token",token,httponly=True,secure=True)
+            resp.set_cookie("access_token",token)
             return resp
         else:
             return "code not returned",400
