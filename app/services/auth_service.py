@@ -46,22 +46,41 @@ def get_user_details_from_cognito(access_token):
         return None
     
 def exchange_token(authorization_code):
-    print('Exchange token', authorization_code, COGNITO_DOMAIN, AWS_COGNITO_USER_POOL_CLIENT_ID,AWS_COGNITO_USER_POOL_CLIENT_SECRET, API_URL)
-    message = bytes(f"{AWS_COGNITO_USER_POOL_CLIENT_ID}:{AWS_COGNITO_USER_POOL_CLIENT_SECRET}",'utf-8')
-    secret_hash = base64.b64encode(message).decode()
-    payload = {
-        "grant_type": 'authorization_code',
-        "client_id": AWS_COGNITO_USER_POOL_CLIENT_ID,
-        "code": authorization_code,
-        "redirect_uri": f"{API_URL}/auth/callback"
-    }
-    headers = {"Content-Type": "application/x-www-form-urlencoded",
-        "Authorization": f"Basic {secret_hash}"}
-           
-    response = requests.post(f'https://{COGNITO_DOMAIN}/oauth2/token', params=payload, headers=headers)
-    print(response.json())
-    if response.status_code==200:
+    try:
+        auth_string = f"{AWS_COGNITO_USER_POOL_CLIENT_ID}:{AWS_COGNITO_USER_POOL_CLIENT_SECRET}"
+        secret_base = base64.b64encode(auth_string.encode('utf-8')).decode()
+        
+        payload = {
+            "grant_type": 'authorization_code',
+            "client_id": AWS_COGNITO_USER_POOL_CLIENT_ID,
+            "code": authorization_code,
+            "redirect_uri": f"{API_URL}/auth/callback"
+        }
+        
+        headers = {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Authorization": f"Basic {secret_base}"
+        }
+        
+        response = requests.post(
+            f'https://{COGNITO_DOMAIN}/oauth2/token',
+            data=payload,
+            headers=headers
+        )
+
+        if response.status_code != 200:
+            print(f"Error exchanging token: {response.text}")
+            return None
+            
         tokens = response.json()
-        return tokens.get("access_token")
-    else:
+        access_token = tokens.get("access_token")
+        
+        if not access_token:
+            print("No access token in response")
+            return None
+            
+        return access_token
+        
+    except Exception as e:
+        print(f"Exception during token exchange: {str(e)}")
         return None
