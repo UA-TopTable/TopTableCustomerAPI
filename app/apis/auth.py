@@ -29,12 +29,12 @@ class Redirect(Resource):
         "code":fields.String(required=True)
     })
     @api.response(400,"code not returned")
-    @api.response(500,"error enchanging code")
+    @api.response(500,"error exchanging token")
     @api.response(301,"redirect to home page")
     def get(self):
         if "code" in request.args:
+            print('code',request.args.get("code") )
             token=exchange_token(request.args.get("code"))
-            print(token)
             resp=redirect("/") #TODO: change it later
             resp.set_cookie("access_token",token)
             return resp
