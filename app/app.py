@@ -15,7 +15,7 @@ def create_app():
     app.config['API_URL'] = API_URL
     api.init_app(app)
     app.secret_key = FLASK_SECRET_KEY
-    create_mock_datas()
+    create_mock_datas(app)
     return app
 
 if __name__ == "__main__":
@@ -24,7 +24,7 @@ if __name__ == "__main__":
 
 
 from services.db_service import add_restaurant, add_table, add_working_hours, delete_all_data, add_reservation, save_user_account
-def create_mock_datas():
+def create_mock_datas(app: Flask):
     #delete_all_data() # Uncomment this line to delete all data
     user_data = {
         "full_name": "Test User Restaurant Owner",
