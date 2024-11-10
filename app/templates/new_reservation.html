@@ -1,180 +1,180 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-6 text-center">
-                <button type="button" class="btn btn-primary btn-lg" data-toggle="modal"
-                    data-target="#reservationModal">
-                    Create New Reservation
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 text-center">
+            <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#reservationModal">
+                Create New Reservation
+            </button>
+        </div>
+    </div>
+</div>
+<div class="modal" id="reservationModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title">New Reservation</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-        </div>
-    </div>
-    <div class="modal" id="reservationModal">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <!-- Modal Header -->
-                <div class="modal-header">
-                    <h4 class="modal-title">New Reservation</h4>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                      </button>
-                </div>
 
-                <!-- Modal Body -->
-                <div class="modal-body">
-                    <form id="reservationForm">
-                        <div class="form-group">
-                            <label for="user_id">User ID:</label>
-                            <input type="text" class="form-control" id="user_id" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="restaurant_id">Restaurant:</label>
-                            <select class="form-select" id="restaurant_id" required>
-                                <!-- Options will be populated dynamically -->
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="reservation_date">Reservation Date:</label>
-                            <input type="date" class="form-control" id="reservation_date" required
-                                onchange="fetchAvailableTablesAndSlots()">
-                        </div>
-                        <div class="form-group">
-                            <label for="dining_table_id">Dining Table:</label>
-                            <select class="form-select" id="dining_table_id" required>
-                                <!-- Options will be populated dynamically -->
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="reservation_time_slot">Reservation Time Slot:</label>
-                            <select class="form-select" id="reservation_time_slot" required>
-                                <!-- Options will be populated dynamically -->
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="number_of_people">Number of People:</label>
-                            <input type="number" class="form-control" id="number_of_people" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="special_requests">Special Requests:</label>
-                            <textarea class="form-control" id="special_requests" rows="3"></textarea>
-                        </div>
+            <!-- Modal Body -->
+            <div class="modal-body">
+                <form id="reservationForm">
+                    <div class="form-group">
+                        <label for="user_id">User ID:</label>
+                        <input type="text" class="form-control" id="user_id" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="restaurant_id">Restaurant:</label>
+                        <select class="form-select" id="restaurant_id" required>
+                            <!-- Options will be populated dynamically -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="reservation_date">Reservation Date:</label>
+                        <input type="date" class="form-control" id="reservation_date" required
+                            onchange="fetchAvailableTablesAndSlots()">
+                    </div>
+                    <div class="form-group">
+                        <label for="dining_table_id">Dining Table:</label>
+                        <select class="form-select" id="dining_table_id" required>
+                            <!-- Options will be populated dynamically -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="reservation_time_slot">Reservation Time Slot:</label>
+                        <select class="form-select" id="reservation_time_slot" required>
+                            <!-- Options will be populated dynamically -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="number_of_people">Number of People:</label>
+                        <input type="number" class="form-control" id="number_of_people" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="special_requests">Special Requests:</label>
+                        <textarea class="form-control" id="special_requests" rows="3"></textarea>
+                    </div>
 
-                    </form>
-                </div>
+                </form>
+            </div>
 
-                <!-- Modal Footer -->
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" onclick="submitReservation()">Submit</button>
-                    <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-                </div>
+            <!-- Modal Footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="submitReservation()">Submit</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</div>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 {% endblock %}
 {% block scripts %}
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            fetch('/api/v1/restaurant')
+<script>
+    const API_URL = '{{ API_URL }}';
+    document.addEventListener('DOMContentLoaded', function () {
+        fetch(`${API_URL}/api/v1/restaurant`)
+            .then(response => response.json())
+            .then(data => {
+                const restaurantSelect = document.getElementById('restaurant_id');
+                data.forEach(restaurant => {
+                    const option = document.createElement('option');
+                    option.value = restaurant.id;
+                    option.textContent = restaurant.name;
+                    restaurantSelect.appendChild(option);
+                });
+            });
+
+        fetchAvailableTablesAndSlots();
+    });
+
+    function fetchAvailableTablesAndSlots() {
+        const restaurantId = document.getElementById('restaurant_id').value;
+        const reservationDate = document.getElementById('reservation_date').value;
+
+        if (restaurantId && reservationDate) {
+            fetch(`${API_URL}/api/v1/table?restaurant_id=${restaurantId}&reservation_date=${reservationDate}`)
                 .then(response => response.json())
                 .then(data => {
-                    const restaurantSelect = document.getElementById('restaurant_id');
-                    data.forEach(restaurant => {
-                        const option = document.createElement('option');
-                        option.value = restaurant.id;
-                        option.textContent = restaurant.name;
-                        restaurantSelect.appendChild(option);
-                    });
-                });
+                    const tableSelect = document.getElementById('dining_table_id');
+                    const slotSelect = document.getElementById('reservation_time_slot');
 
-            fetchAvailableTablesAndSlots();
-        });
-
-        function fetchAvailableTablesAndSlots() {
-            const restaurantId = document.getElementById('restaurant_id').value;
-            const reservationDate = document.getElementById('reservation_date').value;
-
-            if (restaurantId && reservationDate) {
-                fetch(`/api/v1/table?restaurant_id=${restaurantId}&reservation_date=${reservationDate}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        const tableSelect = document.getElementById('dining_table_id');
-                        const slotSelect = document.getElementById('reservation_time_slot');
-
-                        tableSelect.innerHTML = '';
+                    tableSelect.innerHTML = '';
+                    slotSelect.innerHTML = '';
+                    console.log(data);
+                    tableSelect.addEventListener('change', function () {
+                        const selectedTableId = tableSelect.value;
+                        const selectedTable = data.find(table => table.id == selectedTableId);
                         slotSelect.innerHTML = '';
-                        console.log(data);
-                        tableSelect.addEventListener('change', function () {
-                            const selectedTableId = tableSelect.value;
-                            const selectedTable = data.find(table => table.id == selectedTableId);
-                            slotSelect.innerHTML = '';
-                            if (selectedTable) {
-                                selectedTable.available_time_slots.forEach(slot => {
-                                    const option = document.createElement('option');
-                                    option.value = slot;
-                                    option.textContent = slot;
-                                    slotSelect.appendChild(option);
-                                });
-                            }
-                        });
-
-                        data.forEach(table => {
-                            console.log(table);
-                            const option = document.createElement('option');
-                            option.value = table.id;
-                            option.textContent = `No: ${table.table_number} - Type:  ${table.table_type} - Seats:  ${table.number_of_seats} - ${table.description}`;
-                            tableSelect.appendChild(option);
-                        });
-
-                        // Trigger change event to populate slots for the initially selected table
-                        tableSelect.dispatchEvent(new Event('change'));
+                        if (selectedTable) {
+                            selectedTable.available_time_slots.forEach(slot => {
+                                const option = document.createElement('option');
+                                option.value = slot;
+                                option.textContent = slot;
+                                slotSelect.appendChild(option);
+                            });
+                        }
                     });
-            }
-        }
-    </script>
-    <script>
-        function submitReservation() {
-            const formData = {
-                user_id: document.getElementById('user_id').value,
-                restaurant_id: document.getElementById('restaurant_id').value,
-                dining_table_id: document.getElementById('dining_table_id').value,
-                number_of_people: document.getElementById('number_of_people').value,
-                reservation_time_slot: document.getElementById('reservation_time_slot').value,
-                reservation_date: document.getElementById('reservation_date').value,
-                special_requests: document.getElementById('special_requests').value
-            };
 
-            // Check for null or empty values
-            for (const key in formData) {
-                if (formData[key] === null || formData[key] === '') {
-                    alert(`Please fill out the ${key.replace('_', ' ')} field.`);
-                    return;
-                }
-            }
+                    data.forEach(table => {
+                        console.log(table);
+                        const option = document.createElement('option');
+                        option.value = table.id;
+                        option.textContent = `No: ${table.table_number} - Type:  ${table.table_type} - Seats:  ${table.number_of_seats} - ${table.description}`;
+                        tableSelect.appendChild(option);
+                    });
 
-            fetch('/api/v1/reservation', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formData)
-            })
-                .then(response => {
-                    if (response.status === 201) {
-                        response.text().then(text => {
-                            window.location.href = `/ui/reservation/${text}`;
-                        });
-                    } else {
-                        alert('Error: ' + response.statusText);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
+                    // Trigger change event to populate slots for the initially selected table
+                    tableSelect.dispatchEvent(new Event('change'));
                 });
         }
-    </script>
+    }
+</script>
+<script>
+    function submitReservation() {
+        const formData = {
+            user_id: document.getElementById('user_id').value,
+            restaurant_id: document.getElementById('restaurant_id').value,
+            dining_table_id: document.getElementById('dining_table_id').value,
+            number_of_people: document.getElementById('number_of_people').value,
+            reservation_time_slot: document.getElementById('reservation_time_slot').value,
+            reservation_date: document.getElementById('reservation_date').value,
+            special_requests: document.getElementById('special_requests').value
+        };
+
+        // Check for null or empty values
+        for (const key in formData) {
+            if (formData[key] === null || formData[key] === '') {
+                alert(`Please fill out the ${key.replace('_', ' ')} field.`);
+                return;
+            }
+        }
+
+        fetch(`${API_URL}/api/v1/reservation`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        })
+            .then(response => {
+                if (response.status === 201) {
+                    response.text().then(text => {
+                        window.location.href = `/ui/reservation/${text}`;
+                    });
+                } else {
+                    alert('Error: ' + response.statusText);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+</script>
 {% endblock %}

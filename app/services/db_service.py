@@ -14,7 +14,7 @@ from sqlalchemy import and_
 from sqlalchemy.orm.exc import NoResultFound
 
 def add_reservation(user_id,restaurant_id,dining_table_id,number_of_people,reservation_start_time
-                    ,reservation_end_time,special_requests='',reservation_code=''):
+                    ,reservation_end_time,reservation_code,special_requests=''):
     with Session(engine) as session:
         table = session.get(DiningTable, dining_table_id)
         if table is None:
