@@ -33,10 +33,9 @@ class Redirect(Resource):
     @api.response(301,"redirect to home page")
     def get(self):
         if "code" in request.args:
-            print('code',request.args.get("code") )
             token=exchange_token(request.args.get("code"))
             resp=redirect("/") #TODO: change it later
-            resp.set_cookie("access_token",token)
+            resp.set_cookie("access_token",token, secure=True, httponly=True)
             return resp
         else:
             return "code not returned",400
