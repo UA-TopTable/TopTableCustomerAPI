@@ -31,5 +31,7 @@ jobs:
       run: |
         # Build a docker container and push it to Docker Hub so that it can be deployed to ECS.
         docker build -t $DOCKERHUB_REPOSITORY:$IMAGE_TAG .
+        docker tag $DOCKERHUB_REPOSITORY:$IMAGE_TAG $DOCKERHUB_REPOSITORY:latest
         docker push $DOCKERHUB_REPOSITORY:$IMAGE_TAG
+        docker push $DOCKERHUB_REPOSITORY:latest
         echo "image=$DOCKERHUB_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
