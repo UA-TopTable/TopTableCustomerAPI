@@ -52,8 +52,9 @@ class HomePage(Resource):
     def get(self):
         restaurants = get_all_restaurants()
         for restaurant in restaurants :
-            if restaurant['restaurant_image'] != '' and not(restaurant['restaurant_image'] is None) :
-                parsed_url = urlparse(restaurant['restaurant_image'])
+            pictures = get_pictures(restaurant['id'])
+            if pictures != [] and not pictures is None :
+                parsed_url = urlparse(pictures[0]['link'])
                 
                 bucket_name = parsed_url.netloc.split('.')[0]
                 object_key = parsed_url.path.lstrip('/')
@@ -76,19 +77,20 @@ class BookRestaurantPage(Resource):
     def get(self, id):
         restaurant = get_restaurant(id)
         pictures = get_pictures(id)
-        if not (pictures == [] or pictures is None): 
-            parsed_url = urlparse(pictures[0]['link'])
-            
-            bucket_name = parsed_url.netloc.split('.')[0]
-            object_key = parsed_url.path.lstrip('/')
-            s3_client = boto3.client('s3')
-            signed_url = s3_client.generate_presigned_url(
-                    'get_object',
-                    Params={'Bucket': bucket_name, 'Key': object_key},
-                    ExpiresIn=3600  # Expiration en secondes (ici, 1 heure par défaut)
-            )
-            print(signed_url)
-            pictures[0]['link'] = signed_url
+        if not (pictures == [] or pictures is None):
+            for picture in pictures : 
+                parsed_url = urlparse(picture['link'])
+                
+                bucket_name = parsed_url.netloc.split('.')[0]
+                object_key = parsed_url.path.lstrip('/')
+                s3_client = boto3.client('s3')
+                signed_url = s3_client.generate_presigned_url(
+                        'get_object',
+                        Params={'Bucket': bucket_name, 'Key': object_key},
+                        ExpiresIn=3600  # Expiration en secondes (ici, 1 heure par défaut)
+                )
+                print(signed_url)
+                picture['link'] = signed_url
         # pictures = pictures if pictures is not None else []
         #TODO: check if we correctly get the user
         #access_token=request.cookies.get("access_token")
