@@ -154,7 +154,6 @@ variable "oauth_scopes" {
   default = [
     "email",
     "openid",
-    "profile",
-    "api/api"
+    "profile"
   ]
 }
