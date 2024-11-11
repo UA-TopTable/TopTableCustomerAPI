@@ -1,3 +1,4 @@
+import sys
 import uuid
 from flask import request
 from flask_restx import Namespace, Resource, fields
@@ -32,7 +33,6 @@ class Reservation(Resource):
         ]
 
         if not all(field in data for field in required_fields):
-            print(data)
             return 'Missing required fields', 400
         
         try:
@@ -61,7 +61,6 @@ class Reservation(Resource):
                 return 'Table not found or request parameters are invalid', 400
             return result.get('id'), 201
         except IntegrityError as e:
-            print(e)
             return 'Invalid request', 400
 
 @api.route('/<int:reservation_id>')

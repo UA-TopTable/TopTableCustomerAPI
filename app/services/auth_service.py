@@ -1,67 +1,86 @@
 import base64
-import os
-import sys
-import boto3
 import requests
 
-from secret import API_URL, AWS_COGNITO_USER_POOL_CLIENT_ID, AWS_COGNITO_USER_POOL_CLIENT_SECRET, AWS_REGION, TOKEN_URL
+from secret import API_URL, AWS_COGNITO_USER_POOL_CLIENT_ID, AWS_COGNITO_USER_POOL_CLIENT_SECRET, AWS_REGION, COGNITO_DOMAIN
 from data.models.UserAccount import UserAccount
-from services.db_service import add_user_account, get_user_by_email
-
-
-cognito=boto3.client('cognito-idp',AWS_REGION)
+from services.db_service import save_user_account, get_user_by_email
 
 #lazy create: the user is added to the database the first time it is needed
-def get_user(authorization_token):
+def get_user(access_token):
     name=None
     phone_number=None
     email=None
     
     try:
-        response=cognito.get_user(AccessToken=authorization_token)
-
-        #fill in the details
-        for attr in response["UserAttributes"]:
-            if attr["Name"]=="name":
-                name=attr["Value"]
-            elif attr["Name"]=="phone_number":
-                phone_number=attr["Value"]
-            elif attr["Name"]=="email":
-                email=attr["Value"]
-
+        response = get_user_details_from_cognito(access_token)
+        print('response getuser from cognito oauth2/userInfo', response)
+        name = response.get('name')
+        email = response.get('email')
+        uid  = response.get('sub')
+        phone_number = response.get('phone_number')
         user=get_user_by_email(email)
-        
-        if user is None:
-            name=None
-            phone_number=None
-            for attr in response["UserAttributes"]:
-                if attr["Name"]=="name":
-                    name=attr["Value"]
-                elif attr["Name"]=="phone_number":
-                    phone_number=attr["Value"]
+        user={"full_name":name,"email":email,"phone":phone_number,"password_hash":"something"}
+        return save_user_account(user), 200
+    except Exception as e:
+        print("Error getting user",e)
+        return None, 400
 
-            user=UserAccount(full_name=name,email=email,phone=phone_number,password_hash="something") 
-            return add_user_account(user.as_dict())
-        else:
-            return user.as_dict()
-    except cognito.exceptions.NotAuthorizedException:
-        return None
 
-def exchange_token(authorization_code):
-    message = bytes(f"{AWS_COGNITO_USER_POOL_CLIENT_ID}:{AWS_COGNITO_USER_POOL_CLIENT_SECRET}",'utf-8')
-    secret_hash = base64.b64encode(message).decode()
-    payload = {
-        "grant_type": 'authorization_code',
-        "client_id": AWS_COGNITO_USER_POOL_CLIENT_ID,
-        "code": authorization_code,
-        "redirect_uri": f"{API_URL}/api/v1/auth/redirect"
+def get_user_details_from_cognito(access_token):
+    url = f"https://{COGNITO_DOMAIN}/oauth2/userInfo"
+    headers = {
+        "Content-Type": "application/x-amz-json-1.1",
+        "Authorization": f"Bearer {access_token}",
+        "Accept": "*/*",
+        "Host": COGNITO_DOMAIN,
+        "Accept-Encoding": "gzip, deflate, br",
     }
-    headers = {"Content-Type": "application/x-www-form-urlencoded",
-        "Authorization": f"Basic {secret_hash}"}
-           
-    response = requests.post(TOKEN_URL, params=payload, headers=headers)
-    if response.status_code==200:
-        tokens = response.json()
-        return tokens.get("access_token")
+
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        user_info = response.json()
+        print('User Info:', user_info)
+        return user_info
     else:
+        print('Error fetching user info:', response.text)
+        return None
+    
+def exchange_token(authorization_code):
+    try:
+        auth_string = f"{AWS_COGNITO_USER_POOL_CLIENT_ID}:{AWS_COGNITO_USER_POOL_CLIENT_SECRET}"
+        secret_base = base64.b64encode(auth_string.encode('utf-8')).decode()
+        
+        payload = {
+            "grant_type": 'authorization_code',
+            "client_id": AWS_COGNITO_USER_POOL_CLIENT_ID,
+            "code": authorization_code,
+            "redirect_uri": f"{API_URL}/auth/callback"
+        }
+        
+        headers = {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Authorization": f"Basic {secret_base}"
+        }
+        
+        response = requests.post(
+            f'https://{COGNITO_DOMAIN}/oauth2/token',
+            data=payload,
+            headers=headers
+        )
+
+        if response.status_code != 200:
+            print(f"Error exchanging token: {response.text}")
+            return None
+            
+        tokens = response.json()
+        access_token = tokens.get("access_token")
+        
+        if not access_token:
+            print("No access token in response")
+            return None
+            
+        return access_token
+        
+    except Exception as e:
+        print(f"Exception during token exchange: {str(e)}")
         return None

@@ -1,48 +1,155 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{{ restaurant.name }} - Details</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-</head>
+{% block content %}
+<div class="alert alert-danger alert-dismissible fade show" id="error_alert" style="display: none">
+    There was an error during creation
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
 
-<body>
-    <div class="alert alert-danger alert-dismissible fade show" id="error_alert" style="display: none">
-        There was an error during creation
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-
-    <p class="mt-2 mx-2 mb-0">Registered Tables:</p>
-    <ul class="list-group mx-2" id="tables_list">
-        <li class="list-group-item" style="
+<h1 class="mt-2 mx-2 mb-0">{{restaurant.name}}</h1>
+<h3 class="mt-2 mx-2 mb-0">Registered Tables:</h3>
+<ul class="list-group mx-2" id="tables_list">
+    <li class="list-group-item" style="
           display: flex;
           justify-content: space-between;
           align-items: center;
           width: 100%;
         ">
-            <b>Table number</b>
-            <b>Number of seats</b>
-            <b>Table type</b>
-        </li>
-        {% for table in tables %}
-        <li class="list-group-item" style="
+        <b>Table number</b>
+        <b>Number of seats</b>
+        <b>Table type</b>
+    </li>
+    {% for table in restaurant.dining_tables %}
+    <li class="list-group-item" style="
           display: flex;
           justify-content: space-between;
           align-items: center;
           width: 100%;
         ">
-            <div>{{table.table_number}}</div>
-            <div>{{table.number_of_seats}}</div>
-            <div>{{table.table_type}}</div>
-        </li>
-        {% endfor %}
-    </ul>
-    
+        <div>{{table.table_number}}</div>
+        <div>{{table.number_of_seats}}</div>
+        <div>{{table.table_type}}</div>
+    </li>
+    {% endfor %}
+</ul>
 
-</body>
+<span id="restaurant_id" style="display: none">{{restaurant.id}}</span>
 
-</html>
+{% endblock %}
+
+{% block scripts %}
+
+<script type="text/javascript">
+    const API_URL = '{{ API_URL }}';
+    document
+        .getElementById("table_form")
+        .addEventListener("submit", async function (event) {
+            event.preventDefault();
+
+            const tableNumber = document.getElementById("table_number").value;
+            const numberOfSeats = document.getElementById("number_of_seats").value;
+            const tableType = document.getElementById("table_type").value;
+            const restaurantId = document.getElementById("restaurant_id").innerHTML;
+
+            // Prepare data for POST request
+            const data = {
+                table_number: tableNumber,
+                number_of_seats: numberOfSeats,
+                table_type: tableType,
+            };
+
+
+            // Send POST request
+            const response = await fetch(`${API_URL}/api/v1/restaurant/${restaurantId}/tables`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+            })
+            if (!response.ok) {
+                const al = document.getElementById("error_alert");
+                al.innerHTML = await response.text();
+                al.style.display = "block";
+            } else {
+                this.reset();
+                location.reload();
+            }
+        });
+</script>
+
+<script>
+    document.getElementById('uploadForm').addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        const formData = new FormData();
+        const fileInput = document.getElementById('file');
+        const restaurantIdInput = document.getElementById('restaurant_id');
+        const restaurantId = restaurantIdInput.textContent;
+
+        if (fileInput.files.length === 0) {
+            alert('Please select a picture to upload.');
+            return;
+        }
+
+        formData.append('file', fileInput.files[0]);
+        formData.append('restaurant_id', restaurantId);
+
+        fetch(`${API_URL}/api/v1/upload/upload_picture`, {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                document.getElementById('response').innerText = 'Image successfully uploaded !';
+            })
+            .catch(error => {
+                document.getElementById('response').innerText = 'Error : ' + error.message;
+            });
+    });
+</script>
+
+<script>
+    document.getElementById('descriptionForm').addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        const formData = new FormData();
+        const descriptionInput = document.getElementById('description');
+        const restaurantIdInput = document.getElementById('restaurant_id');
+        const restaurantId = restaurantIdInput.textContent;
+        console.log("this is the restid :" + restaurantIdInput + ":")
+        console.log("this is the description :" + descriptionInput + ":")
+
+
+        if (isNaN(restaurantId)) {
+            alert("Veuillez entrer un nombre valide pour le Restaurant ID.");
+            event.preventDefault();
+        }
+        formData.append('description', descriptionInput.value);
+        formData.append('restaurant_id', restaurantId);
+
+        fetch(`${API_URL}/api/v1/upload/upload_description`, {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                document.getElementById('response').innerText = 'Description successfully modified';
+            })
+            .catch(error => {
+                document.getElementById('response').innerText = 'Error : ' + error.message;
+            });
+    });
+</script>
+
+{% endblock %}

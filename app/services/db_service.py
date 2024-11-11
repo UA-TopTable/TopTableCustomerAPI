@@ -14,7 +14,7 @@ from sqlalchemy import and_
 from sqlalchemy.orm.exc import NoResultFound
 
 def add_reservation(user_id,restaurant_id,dining_table_id,number_of_people,reservation_start_time
-                    ,reservation_end_time,special_requests='',reservation_code=''):
+                    ,reservation_end_time,reservation_code,special_requests=''):
     with Session(engine) as session:
         table = session.get(DiningTable, dining_table_id)
         if table is None:
@@ -104,10 +104,8 @@ def add_restaurant(restaurant_data: dict):
             time_zone=restaurant_data.get('time_zone'),
             owner_user_id=restaurant_data.get('owner_user_id')
         )
-        
         session.add(restaurant)
         session.commit()
-        
         return restaurant.as_dict() if restaurant else None
     
 def get_restaurant(restaurant_id):
@@ -169,24 +167,31 @@ def delete_all_data():
         session.query(UserAccount).delete()
         session.commit()
 
-def add_user_account(user_data: dict):
+def save_user_account(user_data: dict):
     if user_data.get('phone') is None:
         user_data['phone'] = ''
     if user_data.get('profile_image_url') is None:
         user_data['profile_image_url'] = ''
     if user_data.get('user_type') is None:
-        user_data['user_type'] = 'regular'
+        user_data['user_type'] = 'customer'
     with Session(engine) as session:
-        
-        user = UserAccount(
+        existing_user = session.query(UserAccount).filter(UserAccount.email == user_data.get('email')).first()
+        if existing_user:
+            existing_user.full_name = user_data.get('full_name')
+            existing_user.phone = user_data.get('phone')
+            existing_user.profile_image_url = user_data.get('profile_image_url')
+            existing_user.user_type = user_data.get('user_type')
+            existing_user.password_hash = user_data.get('password_hash')
+            user = existing_user
+        else:
+            user = UserAccount(
             full_name=user_data.get('full_name'),
             email=user_data.get('email'),
             phone=user_data.get('phone'),
             profile_image_url=user_data.get('profile_image_url'),
             user_type=user_data.get('user_type'),
             password_hash=user_data.get('password_hash')
-        )
-
+            )
         session.add(user)
         session.commit()
         
