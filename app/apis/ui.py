@@ -50,6 +50,7 @@ class ReservationPage(Resource):
 @api.route("/home")
 class HomePage(Resource):
     def get(self):
+        print("home")
         restaurants = get_all_restaurants()
         for restaurant in restaurants :
             if restaurant['restaurant_image'] != '' and not(restaurant['restaurant_image'] is None) :
