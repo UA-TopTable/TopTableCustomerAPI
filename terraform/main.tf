@@ -250,13 +250,13 @@ resource "aws_ecs_task_definition" "app" {
       command = [
         "sh",
         "-c",
-        <<-EOF
-          until mysql -h${aws_db_instance.mysql.address} -u${var.db_username} -p${var.db_password} ${var.db_name} -e 'SELECT 1'; do 
-            echo waiting for database; 
-            sleep 5; 
-            done; 
-            echo '$(cat "${path.module}/init.sql")' | mysql -h${aws_db_instance.mysql.address} -u${var.db_username} -p${var.db_password} ${var.db_name}
-        EOF
+        <<EOF
+        until mysql -h${aws_db_instance.mysql.address} -u${var.db_username} -p${var.db_password} ${var.db_name} -e 'SELECT 1'; do 
+          echo waiting for database; 
+          sleep 5; 
+        done;
+        echo '${file("${path.module}/init.sql")}' | mysql -h${aws_db_instance.mysql.address} -u${var.db_username} -p${var.db_password} ${var.db_name}
+      EOF
       ]
 
       environment = [
