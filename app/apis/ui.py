@@ -52,19 +52,23 @@ class HomePage(Resource):
     def get(self):
         print("home")
         restaurants = get_all_restaurants()
-        for restaurant in restaurants :
-            if restaurant['restaurant_image'] != '' and not(restaurant['restaurant_image'] is None) :
-                parsed_url = urlparse(restaurant['restaurant_image'])
-                
-                bucket_name = parsed_url.netloc.split('.')[0]
-                object_key = parsed_url.path.lstrip('/')
-                s3_client = boto3.client('s3')
-                signed_url = s3_client.generate_presigned_url(
-                        'get_object',
-                        Params={'Bucket': bucket_name, 'Key': object_key},
-                        ExpiresIn=3600  # Expiration en secondes (ici, 1 heure par défaut)
-                )
-                restaurant['restaurant_image'] = signed_url
+        try:
+            for restaurant in restaurants :
+                if restaurant['restaurant_image'] != '' and not(restaurant['restaurant_image'] is None) :
+                    parsed_url = urlparse(restaurant['restaurant_image'])
+                    
+                    bucket_name = parsed_url.netloc.split('.')[0]
+                    object_key = parsed_url.path.lstrip('/')
+                    s3_client = boto3.client('s3')
+                    signed_url = s3_client.generate_presigned_url(
+                            'get_object',
+                            Params={'Bucket': bucket_name, 'Key': object_key},
+                            ExpiresIn=3600  # Expiration en secondes (ici, 1 heure par défaut)
+                    )
+                    restaurant['restaurant_image'] = signed_url
+        except Exception as e:
+            print(e)
+
         return make_response(
             render_template("index.html", restaurants=restaurants),
             200,
@@ -76,24 +80,27 @@ class HomePage(Resource):
 class BookRestaurantPage(Resource):
     def get(self, id):
         restaurant = get_restaurant(id)
-        pictures = get_pictures(id)
-        if not (pictures == [] or pictures is None): 
-            parsed_url = urlparse(pictures[0]['link'])
-            
-            bucket_name = parsed_url.netloc.split('.')[0]
-            object_key = parsed_url.path.lstrip('/')
-            s3_client = boto3.client('s3')
-            signed_url = s3_client.generate_presigned_url(
-                    'get_object',
-                    Params={'Bucket': bucket_name, 'Key': object_key},
-                    ExpiresIn=3600  # Expiration en secondes (ici, 1 heure par défaut)
-            )
-            print(signed_url)
-            pictures[0]['link'] = signed_url
-        # pictures = pictures if pictures is not None else []
-        #TODO: check if we correctly get the user
-        #access_token=request.cookies.get("access_token")
-        #user = get_user(access_token)
+        try:
+            pictures = get_pictures(id)
+            if not (pictures == [] or pictures is None): 
+                parsed_url = urlparse(pictures[0]['link'])
+                
+                bucket_name = parsed_url.netloc.split('.')[0]
+                object_key = parsed_url.path.lstrip('/')
+                s3_client = boto3.client('s3')
+                signed_url = s3_client.generate_presigned_url(
+                        'get_object',
+                        Params={'Bucket': bucket_name, 'Key': object_key},
+                        ExpiresIn=3600  # Expiration en secondes (ici, 1 heure par défaut)
+                )
+                print(signed_url)
+                pictures[0]['link'] = signed_url
+            # pictures = pictures if pictures is not None else []
+            #TODO: check if we correctly get the user
+            #access_token=request.cookies.get("access_token")
+            #user = get_user(access_token)
+        except Exception as e:
+            print(e)
         class tmpUser:
             id=4
         user=tmpUser()
