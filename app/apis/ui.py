@@ -67,6 +67,8 @@ class HomePage(Resource):
                     )
                     restaurant['restaurant_image'] = signed_url
         except Exception as e:
+            for restaurant in restaurants:
+                restaurant['restaurant_image'] = ''
             print(e)
 
         return make_response(
