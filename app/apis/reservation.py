@@ -86,7 +86,7 @@ class ReservationDelete(Resource):
     def get(self, reservation_id):
         try:
             delete_reservation(reservation_id)
-            return 200
+            return 'Successfully deleted', 200
         except Exception as e:
             print(e)
             return 'Invalid request', 400
