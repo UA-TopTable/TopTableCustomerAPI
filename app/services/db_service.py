@@ -235,3 +235,11 @@ def modify_description(description, restaurant_id):
         restaurant.description = description
         session.commit()
         return restaurant.as_dict() if restaurant else None
+
+def delete_reservation(reservation_id):
+    with Session(engine) as session:
+        reservation = session.query(Reservation).filter(Reservation.id==reservation_id).first()
+        if not reservation:
+            return
+        session.delete(reservation)
+        session.commit()

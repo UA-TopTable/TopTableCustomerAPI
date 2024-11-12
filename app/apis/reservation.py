@@ -4,7 +4,7 @@ from flask import request
 from flask_restx import Namespace, Resource, fields
 from sqlalchemy.exc import IntegrityError
 from util.utils import parse_time_slot
-from services.db_service import add_reservation, get_reservation
+from services.db_service import add_reservation, get_reservation, delete_reservation
 
 api=Namespace("reservation", path="/api/v1/reservation", description="Operations for reservations")
 
@@ -78,3 +78,15 @@ class ReservationById(Resource):
             print(e)
             return 'Invalid request', 400
             
+@api.route('/delete/<int:reservation_id>')
+class ReservationDelete(Resource):
+    @api.doc("Delete a reservation by id")
+    @api.response(200, "Reservation deleted")
+    @api.response(404, "Reservation not found")
+    def get(self, reservation_id):
+        try:
+            delete_reservation(reservation_id)
+            return 200
+        except Exception as e:
+            print(e)
+            return 'Invalid request', 400
