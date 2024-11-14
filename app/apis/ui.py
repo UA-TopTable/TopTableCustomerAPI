@@ -47,7 +47,7 @@ class ReservationPage(Resource):
         )
     
 
-@api.route("/home")
+@api.route("/homes")
 class HomePage(Resource):
     def get(self):
         print("home")
