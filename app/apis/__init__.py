@@ -7,6 +7,7 @@ from .reservation import api as api_reservation
 from .restaurant import api as api_restaurant
 from .dining_table import api as api_table
 from .ui import api as api_ui
+from secret import ROOT_PATH_PREFIX
 
 from secret import ROOT_PATH_PREFIX
 
