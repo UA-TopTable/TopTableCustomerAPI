@@ -1,7 +1,7 @@
 from services.db_service import get_all_restaurants, add_restaurant
 from flask_restx import Namespace, Resource, fields
 
-api=Namespace("restaurant", path="/api/v1/restaurant", description="Operations for getting the restaurant information")
+api=Namespace("restaurant", path="/api/v1/restaurant", description="Operations for getting the restaurant information test")
 
 @api.route("/")
 class Restaurant(Resource):
@@ -27,7 +27,7 @@ class Restaurant(Resource):
             return restaurant.get('id'), 201
         except Exception as e:
             print(e)
-            return 'e', 400
+            return f'erreur : {e}', 400
 
     @api.doc("Get restaurants") 
     @api.response(200,description="restaurants list")
