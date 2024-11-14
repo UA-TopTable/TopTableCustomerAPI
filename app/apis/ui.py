@@ -47,9 +47,12 @@ class ReservationPage(Resource):
         )
     
 
+from mocking import create_mock_datas
+
 @api.route("/home")
 class HomePage(Resource):
     def get(self):
+        create_mock_datas(None)
         print("home")
         restaurants = get_all_restaurants()
         try:
@@ -103,9 +106,11 @@ class BookRestaurantPage(Resource):
             #user = get_user(access_token)
         except Exception as e:
             print(e)
-        class tmpUser:
-            id=4
-        user=tmpUser()
+        # class tmpUser:
+        #     id=4
+        # user=tmpUser()
+        access_token=request.cookies.get("access_token")
+        user = get_user(access_token)
         return make_response(
             render_template("book_restaurant.html", restaurant=restaurant, pictures=pictures, user=user),
             200,
