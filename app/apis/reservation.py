@@ -78,7 +78,7 @@ class ReservationById(Resource):
             print(e)
             return 'Invalid request', 400
             
-@api.route('/deletes/<int:reservation_id>')
+@api.route('/delete/<int:reservation_id>')
 class ReservationDelete(Resource):
     @api.doc("Delete a reservation by id")
     @api.response(200, "Reservation deleted")
