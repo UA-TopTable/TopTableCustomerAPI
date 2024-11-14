@@ -47,12 +47,9 @@ class ReservationPage(Resource):
         )
     
 
-from mocking import create_mock_datas
-
 @api.route("/home")
 class HomePage(Resource):
     def get(self):
-        create_mock_datas(None)
         print("home")
         restaurants = get_all_restaurants()
         try:
