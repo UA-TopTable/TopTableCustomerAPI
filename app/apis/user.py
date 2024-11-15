@@ -53,6 +53,6 @@ class UserReservations(Resource):
         if "restaurant_id" in request.args:
             restaurant_id=request.args.get("restaurant_id")
         
-        reservations=get_user_reservations(user.id,starts_after,ends_before,restaurant_id)
+        reservations=get_user_reservations(user["id"],starts_after,ends_before,restaurant_id)
 
         return [reservation.as_dict() for reservation in reservations],200

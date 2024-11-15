@@ -20,10 +20,10 @@ def get_user(access_token):
         phone_number = response.get('phone_number')
         user=get_user_by_email(email)
         user={"full_name":name,"email":email,"phone":phone_number,"password_hash":"something"}
-        return save_user_account(user), 200
+        return save_user_account(user)
     except Exception as e:
         print("Error getting user",e)
-        return None, 400
+        return None
 
 
 def get_user_details_from_cognito(access_token):
