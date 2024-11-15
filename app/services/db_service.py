@@ -246,3 +246,24 @@ def get_user_reservations(user_id,starts_after=None,ends_before=None,restaurant_
         if restaurant_id is not None:
             query=query.filter(Reservation.restaurant_id==restaurant_id)
         return query.all()
+
+def get_table_by_id(table_id):
+    try:
+        with Session(engine) as session:
+            return session.query(DiningTable).filter(DiningTable.id==table_id).one()
+    except NoResultFound:
+        return None
+    
+def get_user_by_id(user_id):
+    try:
+        with Session(engine) as session:
+            return session.query(UserAccount).filter(UserAccount.id==user_id).one()
+    except NoResultFound:
+        return None
+
+def get_restaurant_by_id(restaurant_id):
+    try:
+        with Session(engine) as session:
+            return session.query(Restaurant).filter(Restaurant.id==restaurant_id).one()
+    except NoResultFound:
+        return None
