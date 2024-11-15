@@ -7,6 +7,7 @@ from .reservation import api as api_reservation
 from .restaurant import api as api_restaurant
 from .dining_table import api as api_table
 from .ui import api as api_ui
+from .user import api as api_user
 from secret import ROOT_PATH_PREFIX
 
 from secret import ROOT_PATH_PREFIX
@@ -26,3 +27,4 @@ api.add_namespace(api_reservation)
 api.add_namespace(api_restaurant)
 api.add_namespace(api_ui)
 api.add_namespace(api_table)
+api.add_namespace(api_user)
