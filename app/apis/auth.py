@@ -43,10 +43,17 @@ class Redirect(Resource):
 @api.route("/get_current_user") #this route can be used for testing
 class GetCurrentUser(Resource):
     def get(self):
-        if "access_token" not in request.cookies:
-            return redirect("/auth/login")
-        else:
+        if 'x-amzn-oidc-accesstoken' in request.headers:
+            access_token = request.headers.get('x-amzn-oidc-accesstoken')
+        elif "access_token" in request.cookies:
             access_token=request.cookies.get("access_token")
-            if(access_token is None):
-                return "no access token",400
-            return get_user(access_token)
+        else:
+            return redirect("/auth/login")
+        
+        if(access_token is None):
+            return "no access token",400
+        user=get_user(access_token)
+        if user is None:
+            return "invalid user",400
+        else:
+            user,200
