@@ -651,7 +651,7 @@ resource "aws_lb_listener_rule" "staff" {
   action {
     type = "authenticate-cognito"
     authenticate_cognito {
-      user_pool_arn       = aws_cognito_user_pool.proj_user_pool.arn
+      user_pool_arn       = data.aws_cognito_user_pools.existing.arns[0]
       user_pool_client_id = aws_cognito_user_pool_client.app_client.id
       user_pool_domain    = var.cognito_domain
       session_cookie_name = "AWSELBAuthSessionCookie"
