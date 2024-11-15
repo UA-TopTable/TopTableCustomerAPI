@@ -2,7 +2,7 @@ import boto3
 from flask import redirect, request
 from flask_restx import Namespace,Resource,fields
 from services.auth_service import exchange_token, get_user
-from secret import API_URL, AWS_COGNITO_USER_POOL_CLIENT_ID, AWS_REGION, COGNITO_DOMAIN
+from secret import API_URL, APP_PORT, AWS_COGNITO_USER_POOL_CLIENT_ID, AWS_REGION, COGNITO_DOMAIN
 
 api=Namespace("auth",path="/auth",description="Authentication operations")
 
@@ -12,7 +12,7 @@ cognito=boto3.client('cognito-idp',AWS_REGION)
 class Login(Resource):
     @api.doc('login via hosted ui')
     def get(self):
-        return redirect(f"https://{COGNITO_DOMAIN}/login?&client_id={AWS_COGNITO_USER_POOL_CLIENT_ID}&redirect_uri={API_URL}/auth/callback&response_type=code")
+        return redirect(f"https://{COGNITO_DOMAIN}/login?&client_id={AWS_COGNITO_USER_POOL_CLIENT_ID}&redirect_uri={API_URL}:{APP_PORT}/auth/callback&response_type=code")
         
 @api.route("/sign_out")
 class SignOut(Resource):
@@ -43,10 +43,17 @@ class Redirect(Resource):
 @api.route("/get_current_user") #this route can be used for testing
 class GetCurrentUser(Resource):
     def get(self):
-        if "access_token" not in request.cookies:
-            return redirect("/auth/login")
-        else:
+        if 'x-amzn-oidc-accesstoken' in request.headers:
+            access_token = request.headers.get('x-amzn-oidc-accesstoken')
+        elif "access_token" in request.cookies:
             access_token=request.cookies.get("access_token")
-            if(access_token is None):
-                return "no access token",400
-            return get_user(access_token)
+        else:
+            return redirect("/auth/login")
+        
+        if(access_token is None):
+            return "no access token",400
+        user=get_user(access_token)
+        if user is None:
+            return "invalid user",400
+        else:
+            user,200

@@ -1,0 +1,42 @@
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">Table number</th>
+            <th scope="col">Reservation code</th>
+            <th scope="col">Restaurant name</th>
+            <th scope="col">Number of people</th>
+            <th scope="col">Start time</th>
+            <th scope="col">End time</th>
+            <th scope="col">Special Requests</th>
+            <th scope="col">Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for reservation in reservations %}
+        <tr>
+            <td scop="row">{{reservation.table_number}}</td>
+            <td>{{reservation.reservation_code}}</td>
+            <td>{{reservation.restaurant_name}}</td>
+            <td>{{reservation.number_of_people}}</td>
+            <td>{{reservation.reservation_start_time}}</td>
+            <td>{{reservation.reservation_end_time}}</td>
+            <td>{{reservation.special_requests}}</td>
+            <td>
+                {% if can_change_status %}
+                
+                <form action="{{url_for('reservations', id=restaurant_id) }}" method="POST">
+                    <input type="hidden" name="reservation_id" value="{{reservation.id}}">
+                    <select class="form-select" name="status" onchange="this.form.submit()">
+                        {% for status in ["pending","confirmed","cancelled"] %}
+                        <option {% if reservation.status == status %}selected{% endif %} value="{{status}}">{{status}}</option>
+                        {% endfor %}
+                    </select>
+                </form>
+                {% else %}
+                {{reservation.status}}
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
