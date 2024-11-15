@@ -3,7 +3,7 @@ import boto3
 from urllib.parse import urlparse
 from flask import make_response, render_template, request
 from flask_restx import Namespace,Resource
-from services.db_service import get_reservation, get_restaurant, get_all_restaurants, get_pictures, get_all_tables
+from services.db_service import get_reservation, get_restaurant, get_all_restaurants, get_pictures, get_all_tables,get_table_by_id,get_user_by_id,get_user_reservations,get_restaurant_by_id
 from services.auth_service import get_user
 
 api=Namespace("ui",path="/ui",description="UI-related endpoints")
@@ -115,3 +115,56 @@ class BookRestaurantPage(Resource):
         )
     
     
+@api.route("/user/reservations",endpoint="user_reservations_page")
+class UserReservationsPage(Resource):
+    @api.param("starts_after", "Filter reservations that start after date")
+    @api.param("ends_before", "Filter reservations that end before date")
+    @api.param("restaurant_id", "Filter reservations that belong to a specific restaurant")
+    def get(self):
+        if 'x-amzn-oidc-accesstoken' in request.headers:
+            access_token = request.headers.get('x-amzn-oidc-accesstoken')
+        elif "access_token" in request.cookies:
+            access_token=request.cookies.get("access_token")
+        else:
+            return redirect("/auth/login")
+        
+        if(access_token is None):
+            return "no access token",400
+        user=get_user(access_token)
+
+        starts_after=None
+        ends_before=None
+        restaurant_id=None
+
+        if "starts_after" in request.args and request.args.get("starts_after")!="":
+            starts_after=request.args.get("starts_after")
+        
+        if "ends_before" in request.args and request.args.get("ends_before")!="":
+            ends_before=request.args.get("ends_before")
+        
+        if "restaurant_id" in request.args and request.args.get("restaurant_id")!="":
+            restaurant_id=request.args.get("restaurant_id")
+
+        reservations_raw=get_user_reservations(user["id"],starts_after=starts_after,ends_before=ends_before,restaurant_id=restaurant_id)
+
+        restaurants=[]
+
+        reservations=[]
+        #get table number and customer name to make it more human-readable
+        for reservation in reservations_raw:
+            reservation=reservation.as_dict()
+
+            table=get_table_by_id(reservation['dining_table_id'])
+            reservation['table_number']=table.table_number if table is not None else ""
+
+            restaurant=get_restaurant_by_id(reservation["restaurant_id"])
+            reservation['restaurant_name']=restaurant.name if restaurant is not None else ""
+
+            reservations.append(reservation)
+            restaurants.append((reservation["restaurant_id"],reservation["restaurant_name"]))
+
+        return make_response(
+            render_template("reservations.html", reservations=reservations,restaurants=restaurants),
+            200,
+            {'Content-Type': 'text/html'}
+        )

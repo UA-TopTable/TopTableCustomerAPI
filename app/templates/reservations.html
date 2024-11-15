@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{%set can_change_status=False%}
+{% block content %}
+
+<h1>Reservation History:</h1>
+
+<form method="get" action="{{url_for('user_reservations_page')}}">
+    <div class="row justify-content-end">
+      <div class="col-auto">
+        <label for="startAfter" class="col-form-label">Starts after:</label>
+      </div>
+      <div class="col-auto">
+        <input type="datetime-local" id="startAfter" class="form-control" name="starts_after">
+      </div>
+      <div class="col-auto">
+        <label for="endsBefore" class="col-form-label">Ends before:</label>
+      </div>
+      <div class="col-auto">
+        <input type="datetime-local" id="endsBefore" class="form-control" name="ends_before">
+      </div>
+      <div class="col-auto">
+        <label for="restaurantId" class="col-form-label">Restaurant ID:</label>
+      </div>
+      <div class="col-auto">
+        <select name="restaurant_id" class="form-select">
+            {% for restaurant in restaurants%}
+            <option value="{{restaurant[0]}}">{{restaurant[1]}}</option>
+            {% endfor %}
+        </select>
+      </div>
+      <div class="col-auto">
+        <button class="btn btn-primary" type="submit">Apply</button>
+      </div>
+    </div>
+  </form>
+  
+{% include "reservation_list.html" %}
+
+{% endblock %}
