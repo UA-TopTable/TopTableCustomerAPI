@@ -235,6 +235,17 @@ def modify_description(description, restaurant_id):
         restaurant.description = description
         session.commit()
         return restaurant.as_dict() if restaurant else None
+    
+def get_user_reservations(user_id,starts_after=None,ends_before=None,restaurant_id=None):
+    with Session(engine) as session:
+        query=session.query(Reservation).filter(Reservation.user_id==user_id)
+        if starts_after is not None:
+            query=query.filter(Reservation.reservation_start_time>=starts_after)
+        if ends_before is not None:
+            query=query.filter(Reservation.reservation_end_time<=ends_before)
+        if restaurant_id is not None:
+            query=query.filter(Reservation.restaurant_id==restaurant_id)
+        return query.all()
 
 def delete_reservation(reservation_id):
     with Session(engine) as session:
