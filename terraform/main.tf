@@ -208,15 +208,6 @@ resource "aws_security_group" "ecs_tasks" {
   }
 }
 
-# CloudWatch Log Group
-resource "aws_cloudwatch_log_group" "ecs_logs" {
-  name              = "/ecs/${var.task_family}"
-  retention_in_days = 1
-  tags = {
-    Name = "/ecs/${var.task_family}"
-  }
-}
-
 # Login to docker hub, if not authenticated the pull rate limit is 100 pulls per 6 hours
 resource "aws_secretsmanager_secret" "docker_hub" {
   name                    = "docker-hub-credentials"
@@ -230,9 +221,21 @@ resource "aws_secretsmanager_secret_version" "docker_hub" {
     password = var.dockerhub_password
   })
 }
-# ECS Task Definition with environment variables
-resource "aws_ecs_task_definition" "app" {
-  family                   = var.task_family
+
+# --------------------------------- Containers/Task Definitions ---------------------------------
+# --------------------------------- Customer app ---------------------------------
+# CloudWatch Log Group for customer app
+resource "aws_cloudwatch_log_group" "ecs_logs_customer" {
+  name              = "/ecs/${var.task_family}-customer"
+  retention_in_days = 1
+  tags = {
+    Name = "/ecs/${var.task_family}-customer"
+  }
+}
+
+# Task Definition for customer app
+resource "aws_ecs_task_definition" "customer_app" {
+  family                   = "${var.task_family}-customer"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   cpu                      = 256
@@ -243,7 +246,7 @@ resource "aws_ecs_task_definition" "app" {
   container_definitions = jsonencode([
     # Init container for database setup
     {
-      name      = "${var.container_name}-db-init"
+      name      = "${var.customer_container_name}-db-init"
       image     = "mysql:8.0"
       essential = false
 
@@ -269,7 +272,7 @@ resource "aws_ecs_task_definition" "app" {
       logConfiguration = {
         logDriver = "awslogs"
         options = {
-          "awslogs-group"         = "/ecs/${var.task_family}"
+          "awslogs-group"         = "/ecs/${var.task_family}-customer"
           "awslogs-region"        = var.aws_region
           "awslogs-stream-prefix" = "init"
         }
@@ -277,13 +280,13 @@ resource "aws_ecs_task_definition" "app" {
     },
     # Main application container
     {
-      name      = var.container_name
-      image     = var.docker_image
+      name      = var.customer_container_name
+      image     = var.customer_docker_image
       essential = true
 
       dependsOn = [
         {
-          containerName = "${var.container_name}-db-init"
+          containerName = "${var.customer_container_name}-db-init"
           condition     = "SUCCESS"
         }
       ]
@@ -298,13 +301,225 @@ resource "aws_ecs_task_definition" "app" {
       memory            = 512
       memoryReservation = 256
       healthCheck = {
-        command     = ["CMD-SHELL", "curl -f http://localhost:${var.container_port}/ || exit 1"]
+        command     = ["CMD-SHELL", "curl -f http://localhost:${var.container_port}/customer || exit 1"]
         interval    = 60
         timeout     = 5
         retries     = 2
         startPeriod = 60
       }
       environment = [
+        {
+          name  = "ROOT_PATH_PREFIX"
+          value = "/customer"
+        },
+        {
+          name  = "FLASK_SECRET_KEY"
+          value = var.flask_secret_key
+        },
+        {
+          name  = "AWS_REGION"
+          value = var.aws_region
+        },
+        {
+          name  = "ENV"
+          value = var.environment
+        },
+        {
+          name  = "API_URL"
+          value = "https://${aws_lb.app.dns_name}"
+        },
+        {
+          name  = "PORT"
+          value = tostring(var.container_port)
+        },
+        {
+          name  = "COGNITO_DOMAIN"
+          value = var.cognito_domain
+        },
+        {
+          name  = "COGNITO_USER_POOL_CLIENT_ID"
+          value = aws_cognito_user_pool_client.app_client.id
+        },
+        {
+          name  = "COGNITO_USER_POOL_CLIENT_SECRET"
+          value = aws_cognito_user_pool_client.app_client.client_secret
+        },
+        {
+          name  = "DB_HOST"
+          value = aws_db_instance.mysql.address
+        },
+        {
+          name  = "S3BUCKET"
+          value = aws_db_instance.mysql.address
+        },
+        {
+          name  = "DB_PORT"
+          value = tostring(var.db_port)
+        },
+        {
+          name  = "DB_NAME"
+          value = var.db_name
+        },
+        {
+          name  = "DB_USER"
+          value = var.db_username
+        },
+        {
+          name  = "DB_PASSWD"
+          value = var.db_password
+        }
+      ]
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          "awslogs-group"         = "/ecs/${var.task_family}-customer"
+          "awslogs-region"        = var.aws_region
+          "awslogs-stream-prefix" = "ecs"
+        }
+      }
+      repositoryCredentials = {
+        credentialsParameter = aws_secretsmanager_secret.docker_hub.arn
+      }
+    }
+  ])
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
+  depends_on = [aws_db_instance.mysql]
+}
+
+# ECS Service for customer app
+resource "aws_ecs_service" "customer_app" {
+  name                 = "${var.vpc_prefix}-customer-app-service"
+  cluster              = aws_ecs_cluster.main.id
+  task_definition      = aws_ecs_task_definition.customer_app.arn
+  desired_count        = 1
+  launch_type          = "FARGATE"
+  force_new_deployment = true
+
+  network_configuration {
+    subnets          = aws_subnet.private[*].id
+    security_groups  = [aws_security_group.ecs_tasks.id]
+    assign_public_ip = false
+  }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.customer_app.arn
+    container_name   = var.customer_container_name
+    container_port   = var.container_port
+  }
+  lifecycle {
+    create_before_destroy = true
+    ignore_changes        = [desired_count]
+  }
+  depends_on = [
+    aws_lb_listener.http,
+    aws_ecs_task_definition.customer_app,
+    aws_lb_target_group.customer_app
+  ]
+}
+
+# Target Group for customer app 
+resource "aws_lb_target_group" "customer_app" {
+  name        = "${var.vpc_prefix}-customer-tg"
+  port        = var.container_port
+  protocol    = "HTTP"
+  vpc_id      = aws_vpc.main.id
+  target_type = "ip"
+
+  health_check {
+    healthy_threshold   = 2
+    unhealthy_threshold = 3
+    timeout             = 30
+    interval            = 60
+    path                = "/customer"
+    port                = var.container_port
+  }
+
+  tags = {
+    Name = "${var.vpc_prefix}-customer-target-group"
+  }
+}
+
+# Listener rule for customer application
+resource "aws_lb_listener_rule" "customer" {
+  listener_arn = aws_lb_listener.https.arn
+  priority     = 150 # Higher than staff priority (100)
+
+  # First action: authenticate
+  action {
+    type = "authenticate-cognito"
+    authenticate_cognito {
+      user_pool_arn       = data.aws_cognito_user_pools.existing.arns[0]
+      user_pool_client_id = aws_cognito_user_pool_client.app_client.id
+      user_pool_domain    = var.cognito_domain
+      session_cookie_name = "AWSELBAuthSessionCookieCustomer"
+      session_timeout     = 3600
+    }
+  }
+
+  # Second action: forward to target group
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.customer_app.arn
+  }
+
+  condition {
+    path_pattern {
+      values = ["/customer", "/customer/*"]
+    }
+  }
+}
+
+# --------------------------------- Staff app ---------------------------------
+# CloudWatch Log Group for staff app
+resource "aws_cloudwatch_log_group" "ecs_logs_staff" {
+  name              = "/ecs/${var.task_family}-staff"
+  retention_in_days = 1
+  tags = {
+    Name = "/ecs/${var.task_family}-staff"
+  }
+}
+
+# Task Definition for staff app
+resource "aws_ecs_task_definition" "staff_app" {
+  family                   = "${var.task_family}-staff"
+  network_mode             = "awsvpc"
+  requires_compatibilities = ["FARGATE"]
+  cpu                      = 256
+  memory                   = 512
+  execution_role_arn       = var.role_for_tasks
+  task_role_arn            = var.role_for_tasks
+
+  container_definitions = jsonencode([
+    {
+      name      = var.staff_container_name
+      image     = var.staff_docker_image
+      essential = true
+
+      portMappings = [
+        {
+          containerPort = var.container_port
+          hostPort      = var.container_port
+          protocol      = "tcp"
+        }
+      ]
+      memory            = 512
+      memoryReservation = 256
+      healthCheck = {
+        command     = ["CMD-SHELL", "curl -f http://localhost:${var.container_port}/staff || exit 1"]
+        interval    = 60
+        timeout     = 5
+        retries     = 2
+        startPeriod = 60
+      }
+      environment = [
+        {
+          name  = "ROOT_PATH_PREFIX"
+          value = "/staff"
+        },
         {
           name  = "FLASK_SECRET_KEY"
           value = var.flask_secret_key
@@ -361,7 +576,7 @@ resource "aws_ecs_task_definition" "app" {
       logConfiguration = {
         logDriver = "awslogs"
         options = {
-          "awslogs-group"         = "/ecs/${var.task_family}"
+          "awslogs-group"         = "/ecs/${var.task_family}-staff"
           "awslogs-region"        = var.aws_region
           "awslogs-stream-prefix" = "ecs"
         }
@@ -379,27 +594,79 @@ resource "aws_ecs_task_definition" "app" {
   depends_on = [aws_db_instance.mysql]
 }
 
-# --------------------------------- ALB Load Balancer ---------------------------------
-resource "aws_lb_target_group" "app" {
-  name        = "${var.vpc_prefix}-tg"
+# ECS Service for staff app
+resource "aws_ecs_service" "staff_app" {
+  name            = "${var.vpc_prefix}-staff-app-service"
+  cluster         = aws_ecs_cluster.main.id
+  task_definition = aws_ecs_task_definition.staff_app.arn
+  desired_count   = var.app_count
+  launch_type     = "FARGATE"
+
+  network_configuration {
+    subnets          = aws_subnet.private[*].id
+    security_groups  = [aws_security_group.ecs_tasks.id]
+    assign_public_ip = false
+  }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.staff_app.arn
+    container_name   = var.staff_container_name
+    container_port   = var.container_port
+  }
+
+  depends_on = [aws_lb_listener.https]
+}
+
+# Target Group for staff app
+resource "aws_lb_target_group" "staff_app" {
+  name        = "${var.vpc_prefix}-staff-tg"
   port        = var.container_port
   protocol    = "HTTP"
   vpc_id      = aws_vpc.main.id
   target_type = "ip"
 
   health_check {
-    healthy_threshold   = 2
-    unhealthy_threshold = 3
-    timeout             = 30
-    interval            = 60
-    path                = "/"
-    port                = var.container_port
-  }
-
-  tags = {
-    Name = "${var.vpc_prefix}-target-group"
+    healthy_threshold   = "3"
+    interval            = "30"
+    protocol            = "HTTP"
+    matcher             = "200"
+    timeout             = "3"
+    path                = "/staff"
+    unhealthy_threshold = "2"
   }
 }
+
+# Listener rule for staff application
+resource "aws_lb_listener_rule" "staff" {
+  listener_arn = aws_lb_listener.https.arn
+  priority     = 100
+
+  # First action: authenticate
+  action {
+    type = "authenticate-cognito"
+    authenticate_cognito {
+      user_pool_arn       = data.aws_cognito_user_pools.existing.arns[0]
+      user_pool_client_id = aws_cognito_user_pool_client.app_client.id
+      user_pool_domain    = var.cognito_domain
+      session_cookie_name = "AWSELBAuthSessionCookie"
+      session_timeout     = 3600
+    }
+  }
+
+  # Second action: forward to target group
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.staff_app.arn
+  }
+
+  condition {
+    path_pattern {
+      values = ["/staff", "/staff/*"]
+    }
+  }
+}
+
+# --------------------------------- ALB Load Balancer ---------------------------------
 
 # Application Load Balancer
 resource "aws_lb" "app" {
@@ -449,37 +716,6 @@ resource "aws_security_group" "alb" {
   }
 }
 
-# --------------------------------- ECS Service ---------------------------------
-resource "aws_ecs_service" "app" {
-  name                 = "${var.vpc_prefix}-app-service"
-  cluster              = aws_ecs_cluster.main.id
-  task_definition      = aws_ecs_task_definition.app.arn
-  desired_count        = 1
-  launch_type          = "FARGATE"
-  force_new_deployment = true
-
-  network_configuration {
-    subnets          = aws_subnet.private[*].id
-    security_groups  = [aws_security_group.ecs_tasks.id]
-    assign_public_ip = false
-  }
-
-  load_balancer {
-    target_group_arn = aws_lb_target_group.app.arn
-    container_name   = var.container_name
-    container_port   = var.container_port
-  }
-  lifecycle {
-    create_before_destroy = true
-    ignore_changes        = [desired_count]
-  }
-  depends_on = [
-    aws_lb_listener.http,
-    aws_ecs_task_definition.app,
-    aws_lb_target_group.app
-  ]
-}
-
 # --------------------------------- Cognito Client / ELB Callback Binding ---------------------------------
 data "aws_cognito_user_pools" "existing" {
   name = var.cognito_user_pool_name
@@ -490,7 +726,8 @@ resource "aws_cognito_user_pool_client" "app_client" {
   user_pool_id    = data.aws_cognito_user_pools.existing.ids[0]
   generate_secret = true
   callback_urls = concat(var.callback_urls, [
-    "https://${aws_lb.app.dns_name}/auth/callback"
+    "https://${aws_lb.app.dns_name}/auth/callback",
+    "https://${aws_lb.app.dns_name}/oauth2/idpresponse"
   ])
 
   allowed_oauth_flows                  = ["code"]
@@ -554,7 +791,7 @@ resource "aws_acm_certificate" "cert" {
   }
 }
 
-# HTTPS Listener
+# Default HTTPS Listener with Cognito Authentication
 resource "aws_lb_listener" "https" {
   load_balancer_arn = aws_lb.app.arn
   port              = "443"
@@ -563,11 +800,36 @@ resource "aws_lb_listener" "https" {
   certificate_arn   = aws_acm_certificate.cert.arn
 
   default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.app.arn
+    type = "authenticate-cognito"
+
+    authenticate_cognito {
+      user_pool_arn       = data.aws_cognito_user_pools.existing.arns[0]
+      user_pool_client_id = aws_cognito_user_pool_client.app_client.id
+      user_pool_domain    = var.cognito_domain
+
+      authentication_request_extra_params = {
+        prompt = "login"
+      }
+
+      on_unauthenticated_request = "authenticate" # or "deny" or "allow" based on your needs
+      scope                      = "openid"
+      session_cookie_name        = "AWSELBAuthSessionCookie"
+      session_timeout            = 3600 # 1 hour
+    }
   }
 
-  depends_on = [aws_lb_target_group.app]
+  # After authentication, forward to target group
+  # Default action should return a fixed response for unknown paths
+  default_action {
+    type = "fixed-response"
+    fixed_response {
+      content_type = "text/plain"
+      message_body = "Not Found"
+      status_code  = "404"
+    }
+  }
+
+  depends_on = [aws_lb_target_group.customer_app, aws_cognito_user_pool_client.app_client]
 }
 
 # HTTP Listener with redirect to HTTPS
@@ -586,7 +848,7 @@ resource "aws_lb_listener" "http" {
     }
   }
 
-  depends_on = [aws_lb_target_group.app]
+  depends_on = [aws_lb_target_group.customer_app]
 }
 
 # --------------------------------- Outputs ---------------------------------
@@ -597,7 +859,7 @@ output "alb_dns_name" {
 
 output "target_group_arn" {
   description = "The ARN of the Target Group"
-  value       = aws_lb_target_group.app.arn
+  value       = aws_lb_target_group.customer_app.arn
 }
 
 output "rds_endpoint" {

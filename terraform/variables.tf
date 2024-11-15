@@ -27,11 +27,6 @@ variable "cluster_name" {
   type        = string
 }
 
-variable "docker_image" {
-  description = "Docker image to deploy"
-  type        = string
-}
-
 variable "role_for_tasks" {
   description = "role_for_tasks"
   type        = string
@@ -47,21 +42,41 @@ variable "service_name" {
   type        = string
 }
 
-variable "container_name" {
-  description = "Container name"
-  type        = string
-}
-
 variable "app_port_to_open_traffic" {
   description = "the port will be used in security groups to allow traffic"
   type        = number
   default     = 8080
 }
 
+variable "staff_docker_image" {
+  description = "Staff app docker image tag"
+  type        = string
+}
+variable "staff_container_name" {
+  description = "Staff app container name"
+  type        = string
+}
+
+variable "customer_docker_image" {
+  description = "Customer app docker image tag"
+  type        = string
+}
+
+variable "customer_container_name" {
+  description = "Customer app container name"
+  type        = string
+}
+
 variable "container_port" {
   description = "Container port"
   type        = number
   default     = 8080
+}
+
+variable "health_check_path" {
+  description = "health check path"
+  type        = string
+  default     = "/"
 }
 
 variable "app_count" {
