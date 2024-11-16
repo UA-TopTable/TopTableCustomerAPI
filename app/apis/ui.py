@@ -67,6 +67,8 @@ class HomePage(Resource):
                     )
                     restaurant['restaurant_image'] = signed_url
         except Exception as e:
+            if restaurants is None:
+                restaurants = []
             for restaurant in restaurants:
                 restaurant['restaurant_image'] = ''
             print(e)
