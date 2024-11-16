@@ -267,6 +267,7 @@ def get_restaurant_by_id(restaurant_id):
             return session.query(Restaurant).filter(Restaurant.id==restaurant_id).one()
     except NoResultFound:
         return None
+    
 def delete_reservation(reservation_id):
     with Session(engine) as session:
         reservation = session.query(Reservation).filter(Reservation.id==reservation_id).first()
