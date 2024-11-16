@@ -53,7 +53,7 @@
     document.getElementById('deleteReservation').addEventListener('submit', function(e) {
         e.preventDefault();
         var form = e.target;
-        var url = '/customer/api/v1/reservations/delete/' + form.querySelector('#deleteReservationId').value;
+        var url = '/customer/api/v1/reservation/delete/' + form.querySelector('#deleteReservationId').value;
         fetch(url, {
             method: 'GET'
             })
