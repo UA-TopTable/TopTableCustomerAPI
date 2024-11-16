@@ -99,6 +99,7 @@ class BookRestaurantPage(Resource):
                 )
                 print(signed_url)
                 pictures[0]['link'] = signed_url
+                
             # pictures = pictures if pictures is not None else []
             #TODO: check if we correctly get the user
             #access_token=request.cookies.get("access_token")
