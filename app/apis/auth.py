@@ -23,6 +23,9 @@ class SignOut(Resource):
         resp=redirect("/") #TODO: change to restaurant home page (when we have one)
         resp.delete_cookie("access_token")
         return resp
+    def get(self):
+        return redirect(f"https://{COGNITO_DOMAIN}/logout?&client_id={AWS_COGNITO_USER_POOL_CLIENT_ID}&redirect_uri={API_URL}/customer/auth/callback&response_type=code")
+
         
 @api.route("/callback")
 class Redirect(Resource):
