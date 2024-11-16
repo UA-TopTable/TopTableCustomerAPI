@@ -8,6 +8,7 @@ api=Namespace("auth",path="/auth",description="Authentication operations")
 
 cognito=boto3.client('cognito-idp',AWS_REGION)
 
+
 @api.route("/login")
 class Login(Resource):
     @api.doc('login via hosted ui')
