@@ -12,7 +12,7 @@ cognito=boto3.client('cognito-idp',AWS_REGION)
 class Login(Resource):
     @api.doc('login via hosted ui')
     def get(self):
-        return redirect(f"https://{COGNITO_DOMAIN}/login?&client_id={AWS_COGNITO_USER_POOL_CLIENT_ID}&redirect_uri={API_URL}:{APP_PORT}/customer/auth/callback&response_type=code")
+        return redirect(f"https://{COGNITO_DOMAIN}/login?&client_id={AWS_COGNITO_USER_POOL_CLIENT_ID}&redirect_uri={API_URL}:{APP_PORT}/auth/callback&response_type=code")
         
 @api.route("/sign_out")
 class SignOut(Resource):
