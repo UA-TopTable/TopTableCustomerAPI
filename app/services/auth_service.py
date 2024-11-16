@@ -23,7 +23,7 @@ def get_user(access_token):
         return save_user_account(user)
     except Exception as e:
         print("Error getting user",e)
-        return None
+        return "aaa"
 
 
 def get_user_details_from_cognito(access_token):
