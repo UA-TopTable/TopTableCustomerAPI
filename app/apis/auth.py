@@ -57,4 +57,4 @@ class GetCurrentUser(Resource):
         if user is None:
             return "invalid user",400
         else:
-            user,200
+            f"user : {user}",200
