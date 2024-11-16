@@ -55,19 +55,18 @@
         var form = e.target;
         var url = '/customer/api/reservations/delete/' + form.querySelector('#deleteReservationId').value;
         fetch(url, {
-                method: 'GET'
+            method: 'GET'
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status == 'success') {
-                    alert('Reservation deleted successfully');
-                    window.location.reload();
-                } else {
-                    alert('Failed to delete reservation');
-                }
+            .then(response => {
+            if (response.status === 200) {
+                alert('Reservation deleted successfully');
+                window.location.reload();
+            } else {
+                alert('Failed to delete reservation');
+            }
             })
             .catch((error) => {
-                console.error('Error:', error);
+            console.error('Error:', error);
             });
     });
 </script>
