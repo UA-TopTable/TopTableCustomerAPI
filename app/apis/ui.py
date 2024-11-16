@@ -47,7 +47,7 @@ class ReservationPage(Resource):
         )
     
 
-@api.route("/homes")
+@api.route("/home")
 class HomePage(Resource):
     def get(self):
         print("home")
@@ -168,3 +168,4 @@ class UserReservationsPage(Resource):
             200,
             {'Content-Type': 'text/html'}
         )
+    
