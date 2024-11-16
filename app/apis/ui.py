@@ -51,6 +51,7 @@ class ReservationPage(Resource):
 class HomePage(Resource):
     def get(self):
         print("home")
+        user = get_user(request.cookies.get("access_token"))
         restaurants = get_all_restaurants()
         try:
             for restaurant in restaurants :
@@ -74,7 +75,7 @@ class HomePage(Resource):
             print(e)
 
         return make_response(
-            render_template("index.html", restaurants=restaurants),
+            render_template("index.html", restaurants=restaurants, user=user),
             200,
             {'Content-Type': 'text/html'}
         )
