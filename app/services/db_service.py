@@ -10,7 +10,7 @@ from data.db_engine import engine
     
 from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
-from sqlalchemy import and_, delete
+from sqlalchemy import and_
 from sqlalchemy.orm.exc import NoResultFound
 
 def add_reservation(user_id,restaurant_id,dining_table_id,number_of_people,reservation_start_time
@@ -160,17 +160,11 @@ def delete_all_data():
     Delete all data from the database
     """
     with Session(engine) as session:
-        # session.query(Reservation).delete()
-        # session.query(DiningTable).delete()
-        # session.query(WorkingHours).delete()
-        # session.query(Restaurant).delete()
-        # session.query(UserAccount).delete()
-
-        session.execute(delete(Reservation))
-        session.execute(delete(DiningTable))
-        session.execute(delete(WorkingHours))
-        session.execute(delete(Restaurant))
-        session.execute(delete(UserAccount))
+        session.query(Reservation).delete()
+        session.query(DiningTable).delete()
+        session.query(WorkingHours).delete()
+        session.query(Restaurant).delete()
+        session.query(UserAccount).delete()
         session.commit()
 
 def save_user_account(user_data: dict):

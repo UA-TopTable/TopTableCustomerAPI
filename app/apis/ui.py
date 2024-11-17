@@ -174,7 +174,6 @@ from datetime import datetime
 class MockDataPage(Resource):
     def get(self):
         try:
-            delete_all_data()
             user_id = 1
             restaurant_data = {
             "name": "Restaurant 1",
