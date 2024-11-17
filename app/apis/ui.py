@@ -182,7 +182,7 @@ class MockDataPage(Resource):
             "location_address": "Address 1",
             "location_latitude": "1",
             "location_longitude": "1",
-            "restaurant_image": "",
+            "restaurant_image": "image1",
             "time_zone": "UTC",
             "owner_user_id": user_id
             }
