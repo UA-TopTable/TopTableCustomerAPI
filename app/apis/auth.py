@@ -38,7 +38,7 @@ class Redirect(Resource):
     def get(self):
         if "code" in request.args:
             token=exchange_token(request.args.get("code"))
-            resp=redirect("/customer") #TODO: change it later
+            resp=redirect("/customer/ui/home") #TODO: change it later
             resp.set_cookie("access_token",token, secure=True, httponly=True)
             return resp
         else:
