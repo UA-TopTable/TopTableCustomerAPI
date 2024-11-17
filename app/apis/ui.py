@@ -186,7 +186,7 @@ class MockDataPage(Resource):
             "location_address": "Address 1",
             "location_latitude": "1",
             "location_longitude": "1",
-            "restaurant_image": "image1",
+            "restaurant_image": "https://toptable-bucket.s3.us-east-1.amazonaws.com/restaurant1.png",
             "time_zone": "UTC",
             "owner_user_id": user_id
             }
