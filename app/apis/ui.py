@@ -176,43 +176,29 @@ class MockDataPage(Resource):
         try:
             user_id = 1
             restaurant_data = {
-            "name": "Restaurant 1",
-            "description": "Restaurant 1",
+            "name": "Restaurant Test",
+            "description": "Restaurant Test",
             "location_address": "Address 1",
             "location_latitude": "1",
             "location_longitude": "1",
-            "restaurant_image": "image1",
+            "restaurant_image": "https://toptable-bucket.s3.us-east-1.amazonaws.com/restaurant1.png",
             "time_zone": "UTC",
             "owner_user_id": user_id
             }
-            try : 
-                restaurant =  add_restaurant(restaurant_data)
-            except Exception as e : 
-                return f"Exception adding working hours : {e}", 501
+            restaurant =  add_restaurant(restaurant_data)
             restr_id = restaurant.get('id')
             days_of_week = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-            try :
-                for day in days_of_week:
-                    add_working_hours(restaurant_id=restr_id, day_of_week=day, opening_time="09:00", closing_time="21:00")
-            except Exception as e : 
-                return f"Exception adding working hours : {e}", 502
-            try : 
-                table1 = add_table(table_number="1",restaurant_id=restr_id,number_of_seats=4, table_type="indoor", description="Table 1")
-                table2 = add_table(table_number="2",restaurant_id=restr_id,number_of_seats=4, table_type="indoor", description="Table 2")
-            except Exception as e : 
-                return f"Exception adding table : {e}", 503
+            for day in days_of_week:
+                add_working_hours(restaurant_id=restr_id, day_of_week=day, opening_time="09:00", closing_time="21:00")
+            table1 = add_table(table_number="1",restaurant_id=restr_id,number_of_seats=4, table_type="indoor", description="Table 1")
+            table2 = add_table(table_number="2",restaurant_id=restr_id,number_of_seats=4, table_type="indoor", description="Table 2")
             table_id = table1.get('id')
-            try : 
-                reservation_start_time = datetime.now().replace(hour=10, minute=0, second=0, microsecond=0)
-                reservation_end_time = reservation_start_time.replace(hour=10, minute=30)
-                reservation_code = str(int(datetime.timestamp(datetime.now())))[-10:]
-            except Exception as e : 
-                return f"Exception in middle of nowhere : {e}", 504
-            try :
-                add_reservation(user_id=user_id, restaurant_id=restr_id, dining_table_id=table_id, number_of_people=4, reservation_code=reservation_code,
-                                reservation_start_time=reservation_start_time, reservation_end_time=reservation_end_time)
-            except Exception as e : 
-                return f"Exception adding reservation : {e}", 505
+            reservation_start_time = datetime.now().replace(hour=10, minute=0, second=0, microsecond=0)
+            reservation_end_time = reservation_start_time.replace(hour=10, minute=30)
+            reservation_code = str(int(datetime.timestamp(datetime.now())))[-10:]
+            add_reservation(user_id=user_id, restaurant_id=restr_id, dining_table_id=table_id, number_of_people=4, reservation_code=reservation_code,
+                            reservation_start_time=reservation_start_time, reservation_end_time=reservation_end_time)
+            
             return "Mock data created successfully", 200
         except Exception as e:
-            return f"Exception not here {e}", 506
+            return e
