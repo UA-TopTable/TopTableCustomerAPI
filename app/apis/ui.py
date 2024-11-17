@@ -52,26 +52,26 @@ class HomePage(Resource):
     def get(self):
         user = get_user(request.cookies.get("access_token"))
         restaurants = get_all_restaurants()
-        # try:
-        #     for restaurant in restaurants :
-        #         if restaurant['restaurant_image'] != '' and not(restaurant['restaurant_image'] is None) :
-        #             parsed_url = urlparse(restaurant['restaurant_image'])
+        try:
+            for r in restaurants:
+                pictures = get_pictures(r['id'])
+                if not (pictures == [] or pictures is None):
+                    picture = pictures[0]
+                    parsed_url = urlparse(picture['link'])
                     
-        #             bucket_name = parsed_url.netloc.split('.')[0]
-        #             object_key = parsed_url.path.lstrip('/')
-        #             s3_client = boto3.client('s3')
-        #             signed_url = s3_client.generate_presigned_url(
-        #                     'get_object',
-        #                     Params={'Bucket': bucket_name, 'Key': object_key},
-        #                     ExpiresIn=3600  # Expiration en secondes (ici, 1 heure par défaut)
-        #             )
-        #             restaurant['restaurant_image'] = signed_url
-        # except Exception as e:
-        #     if restaurants is None:
-        #         restaurants = []
-        #     for restaurant in restaurants:
-        #         restaurant['restaurant_image'] = ''
-        #     print(e)
+                    bucket_name = parsed_url.netloc.split('.')[0]
+                    object_key = parsed_url.path.lstrip('/')
+                    s3_client = boto3.client('s3')
+                    signed_url = s3_client.generate_presigned_url(
+                            'get_object',
+                            Params={'Bucket': bucket_name, 'Key': object_key},
+                            ExpiresIn=3600 
+                    )
+                    print(signed_url)
+                    r['restaurant_image'] = signed_url
+            
+        except Exception as e:
+            print(e)
 
         return make_response(
             render_template("index.html", restaurants=restaurants, user=user),
