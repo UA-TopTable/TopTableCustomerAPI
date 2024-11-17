@@ -85,24 +85,23 @@ class BookRestaurantPage(Resource):
     def get(self, id):
         restaurant = get_restaurant(id)
         pictures = get_pictures(id)
-        # try:
-        #     if not (pictures == [] or pictures is None): 
-        #         parsed_url = urlparse(pictures[0]['link'])
-                
-        #         bucket_name = parsed_url.netloc.split('.')[0]
-        #         object_key = parsed_url.path.lstrip('/')
-        #         s3_client = boto3.client('s3')
-        #         signed_url = s3_client.generate_presigned_url(
-        #                 'get_object',
-        #                 Params={'Bucket': bucket_name, 'Key': object_key},
-        #                 ExpiresIn=3600  # Expiration en secondes (ici, 1 heure par défaut)
-        #         )
-        #         print(signed_url)
-        #         pictures[0]['link'] = signed_url
-                
-        #     # pictures = pictures if pictures is not None else []
-        # except Exception as e:
-        #     print(e)
+        try:
+            if not (pictures == [] or pictures is None):
+                for picture in pictures : 
+                    parsed_url = urlparse(picture['link'])
+                    
+                    bucket_name = parsed_url.netloc.split('.')[0]
+                    object_key = parsed_url.path.lstrip('/')
+                    s3_client = boto3.client('s3')
+                    signed_url = s3_client.generate_presigned_url(
+                            'get_object',
+                            Params={'Bucket': bucket_name, 'Key': object_key},
+                            ExpiresIn=3600 
+                    )
+                    print(signed_url)
+                    picture['link'] = signed_url
+        except Exception as e:
+            print(e)
         access_token=request.cookies.get("access_token")
         user = get_user(access_token)
         return make_response(
