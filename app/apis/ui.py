@@ -175,14 +175,15 @@ from datetime import datetime
 class MockDataPage(Resource):
     def get(self):
         try:
+            delete_all_data()
             user_id = 1
             restaurant_data = {
-            "name": "Restaurant Test",
-            "description": "Restaurant Test",
+            "name": "Restaurant 1",
+            "description": "Restaurant 1",
             "location_address": "Address 1",
             "location_latitude": "1",
             "location_longitude": "1",
-            "restaurant_image": "https://toptable-bucket.s3.us-east-1.amazonaws.com/restaurant1.png",
+            "restaurant_image": "",
             "time_zone": "UTC",
             "owner_user_id": user_id
             }
