@@ -50,7 +50,6 @@ class ReservationPage(Resource):
 @api.route("/home")
 class HomePage(Resource):
     def get(self):
-        print("home")
         user = get_user(request.cookies.get("access_token"))
         restaurants = get_all_restaurants()
         try:
