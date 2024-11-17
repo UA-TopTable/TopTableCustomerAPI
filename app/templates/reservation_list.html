@@ -39,7 +39,7 @@
             </td>
             <td>
                 <form id="deleteReservation" method="GET">
-                    <button type="submit" class="btn btn-danger"><i class="bi bi-trash3"></i></button>
+                    <button type="submit" title="Cancel reservation" class="btn btn-danger"><i class="bi bi-trash3"></i></button>
                     <input type="hidden" id="deleteReservationId" name="reservationId" value="{{reservation.id}}">
                 </form>
             </td>
@@ -59,10 +59,10 @@
             })
             .then(response => {
             if (response.status === 200) {
-                alert('Reservation deleted successfully');
+                alert('Reservation cancelled successfully');
                 window.location.reload();
             } else {
-                alert('Failed to delete reservation');
+                alert('Failed to cancel reservation');
             }
             })
             .catch((error) => {
