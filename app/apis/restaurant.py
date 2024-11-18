@@ -27,7 +27,7 @@ class Restaurant(Resource):
             return restaurant.get('id'), 201
         except Exception as e:
             print(e)
-            return 'Invalid request', 400
+            return e, 400
 
     @api.doc("Get restaurants") 
     @api.response(200,description="restaurants list")

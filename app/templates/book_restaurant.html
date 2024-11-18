@@ -167,7 +167,7 @@
             // const reservationDate = document.getElementById('reservation_date').value;
 
             if (restaurantId && reservationDate) {
-                fetch(`https://gap-alb-395644472.us-east-1.elb.amazonaws.com/api/v1/table?restaurant_id=${restaurantId}&reservation_date=${reservationDate}`)
+                fetch(`/customer/api/v1/table/?restaurant_id=${restaurantId}&reservation_date=${reservationDate}`)
                     .then(response => response.json())
                     .then(data => {
                         const tableSelect = document.getElementById('dining_table_id');
@@ -226,7 +226,7 @@
                 }
             }
 
-            fetch('https://gap-alb-395644472.us-east-1.elb.amazonaws.com/api/v1/reservation', {
+            fetch('/customer/api/v1/reservation/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -236,7 +236,7 @@
                 .then(response => {
                     if (response.status === 201) {
                         response.text().then(text => {
-                            window.location.href = `/ui/reservation/${text}`;
+                            window.location.href = `/customer/ui/reservation/${text}`;
                         });
                     } else {
                         alert('Error: ' + response.statusText);

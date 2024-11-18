@@ -3,16 +3,18 @@ from flask import redirect, request
 from flask_restx import Namespace,Resource,fields
 from services.auth_service import exchange_token, get_user
 from secret import API_URL, APP_PORT, AWS_COGNITO_USER_POOL_CLIENT_ID, AWS_REGION, COGNITO_DOMAIN
+from secret import API_URL, APP_PORT, AWS_COGNITO_USER_POOL_CLIENT_ID, AWS_REGION, COGNITO_DOMAIN
 
 api=Namespace("auth",path="/auth",description="Authentication operations")
 
 cognito=boto3.client('cognito-idp',AWS_REGION)
 
+
 @api.route("/login")
 class Login(Resource):
     @api.doc('login via hosted ui')
     def get(self):
-        return redirect(f"https://{COGNITO_DOMAIN}/login?&client_id={AWS_COGNITO_USER_POOL_CLIENT_ID}&redirect_uri={API_URL}:{APP_PORT}/auth/callback&response_type=code")
+        return redirect(f"https://{COGNITO_DOMAIN}/login?&client_id={AWS_COGNITO_USER_POOL_CLIENT_ID}&redirect_uri={API_URL}/customer/auth/callback&response_type=code")
         
 @api.route("/sign_out")
 class SignOut(Resource):
@@ -22,6 +24,9 @@ class SignOut(Resource):
         resp=redirect("/") #TODO: change to restaurant home page (when we have one)
         resp.delete_cookie("access_token")
         return resp
+    def get(self):
+        return redirect(f"https://{COGNITO_DOMAIN}/logout?&client_id={AWS_COGNITO_USER_POOL_CLIENT_ID}&redirect_uri={API_URL}/customer/auth/callback&response_type=code")
+
         
 @api.route("/callback")
 class Redirect(Resource):
@@ -34,7 +39,7 @@ class Redirect(Resource):
     def get(self):
         if "code" in request.args:
             token=exchange_token(request.args.get("code"))
-            resp=redirect("/") #TODO: change it later
+            resp=redirect("/customer/ui/home") #TODO: change it later
             resp.set_cookie("access_token",token, secure=True, httponly=True)
             return resp
         else:
@@ -48,6 +53,11 @@ class GetCurrentUser(Resource):
         elif "access_token" in request.cookies:
             access_token=request.cookies.get("access_token")
         else:
+        if 'x-amzn-oidc-accesstoken' in request.headers:
+            access_token = request.headers.get('x-amzn-oidc-accesstoken')
+        elif "access_token" in request.cookies:
+            access_token=request.cookies.get("access_token")
+        else:
             return redirect("/auth/login")
         
         if(access_token is None):
@@ -55,5 +65,11 @@ class GetCurrentUser(Resource):
         user=get_user(access_token)
         if user is None:
             return "invalid user",400
+        
+        if(access_token is None):
+            return "no access token",400
+        user=get_user(access_token)
+        if user is None:
+            return "invalid user",400
         else:
-            user,200
+            return user,200

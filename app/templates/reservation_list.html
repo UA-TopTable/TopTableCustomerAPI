@@ -9,6 +9,7 @@
             <th scope="col">End time</th>
             <th scope="col">Special Requests</th>
             <th scope="col">Status</th>
+            <th scope="col">Cancel</th>
         </tr>
     </thead>
     <tbody>
@@ -36,7 +37,36 @@
                 {{reservation.status}}
                 {% endif %}
             </td>
+            <td>
+                <form id="deleteReservation" method="GET">
+                    <button type="submit" title="Cancel reservation" class="btn btn-danger"><i class="bi bi-trash3"></i></button>
+                    <input type="hidden" id="deleteReservationId" name="reservationId" value="{{reservation.id}}">
+                </form>
+            </td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
+
+
+<script>
+    document.getElementById('deleteReservation').addEventListener('submit', function(e) {
+        e.preventDefault();
+        var form = e.target;
+        var url = '/customer/api/v1/reservation/delete/' + form.querySelector('#deleteReservationId').value;
+        fetch(url, {
+            method: 'GET'
+            })
+            .then(response => {
+            if (response.status === 200) {
+                alert('Reservation cancelled successfully');
+                window.location.reload();
+            } else {
+                alert('Failed to cancel reservation');
+            }
+            })
+            .catch((error) => {
+            console.error('Error:', error);
+            });
+    });
+</script>

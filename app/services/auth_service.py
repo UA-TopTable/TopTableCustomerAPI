@@ -54,7 +54,7 @@ def exchange_token(authorization_code):
             "grant_type": 'authorization_code',
             "client_id": AWS_COGNITO_USER_POOL_CLIENT_ID,
             "code": authorization_code,
-            "redirect_uri": f"{API_URL}/auth/callback"
+            "redirect_uri": f"{API_URL}/customer/auth/callback"
         }
         
         headers = {
