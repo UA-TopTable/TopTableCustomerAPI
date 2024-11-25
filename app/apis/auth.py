@@ -3,7 +3,6 @@ from flask import redirect, request
 from flask_restx import Namespace,Resource,fields
 from services.auth_service import exchange_token, get_user
 from secret import API_URL, APP_PORT, AWS_COGNITO_USER_POOL_CLIENT_ID, AWS_REGION, COGNITO_DOMAIN
-from secret import API_URL, APP_PORT, AWS_COGNITO_USER_POOL_CLIENT_ID, AWS_REGION, COGNITO_DOMAIN
 
 api=Namespace("auth",path="/auth",description="Authentication operations")
 
@@ -53,21 +52,7 @@ class GetCurrentUser(Resource):
         elif "access_token" in request.cookies:
             access_token=request.cookies.get("access_token")
         else:
-        if 'x-amzn-oidc-accesstoken' in request.headers:
-            access_token = request.headers.get('x-amzn-oidc-accesstoken')
-        elif "access_token" in request.cookies:
-            access_token=request.cookies.get("access_token")
-        else:
             return redirect("/auth/login")
-        
-        if(access_token is None):
-            return "no access token",400
-        user=get_user(access_token)
-        if user is None:
-            return "invalid user",400
-        
-        if(access_token is None):
-            return "no access token",400
         user=get_user(access_token)
         if user is None:
             return "invalid user",400
