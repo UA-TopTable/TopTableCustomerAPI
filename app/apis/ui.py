@@ -1,11 +1,8 @@
-import sys
 import boto3
 from urllib.parse import urlparse
 from flask import make_response, redirect, render_template, request
-from flask import make_response, redirect, render_template, request
 from flask_restx import Namespace,Resource
-from services.db_service import get_reservation, get_restaurant, get_all_restaurants, get_pictures, get_all_tables,get_table_by_id,get_user_by_id,get_user_reservations,get_restaurant_by_id
-from services.db_service import get_reservation, get_restaurant, get_all_restaurants, get_pictures, get_all_tables,get_table_by_id,get_user_by_id,get_user_reservations,get_restaurant_by_id
+from services.db_service import get_reservation, get_restaurant, get_all_restaurants, get_pictures, get_all_tables,get_table_by_id,get_user_reservations,get_restaurant_by_id
 from services.auth_service import get_user
 
 api=Namespace("ui",path="/ui",description="UI-related endpoints")
@@ -52,7 +49,14 @@ class ReservationPage(Resource):
 @api.route("/home")
 class HomePage(Resource):
     def get(self):
-        user = get_user(request.cookies.get("access_token"))
+        if 'x-amzn-oidc-accesstoken' in request.headers:
+            access_token = request.headers.get('x-amzn-oidc-accesstoken')
+        elif "access_token" in request.cookies:
+            access_token=request.cookies.get("access_token")
+        else:
+            return "not authorized",401
+        
+        user = get_user(access_token)
         restaurants = get_all_restaurants()
         try:
             for r in restaurants:
@@ -104,7 +108,13 @@ class BookRestaurantPage(Resource):
                     picture['link'] = signed_url
         except Exception as e:
             print(e)
-        access_token=request.cookies.get("access_token")
+        
+        if 'x-amzn-oidc-accesstoken' in request.headers:
+            access_token = request.headers.get('x-amzn-oidc-accesstoken')
+        elif "access_token" in request.cookies:
+            access_token=request.cookies.get("access_token")
+        else:
+            return "not authorized",401
         user = get_user(access_token)
         return make_response(
             render_template("book_restaurant.html", restaurant=restaurant, pictures=pictures, user=user),
@@ -124,9 +134,6 @@ class UserReservationsPage(Resource):
         elif "access_token" in request.cookies:
             access_token=request.cookies.get("access_token")
         else:
-            return redirect("/auth/login")
-        
-        if(access_token is None):
             return "no access token",400
         user=get_user(access_token)
 
