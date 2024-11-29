@@ -2,6 +2,7 @@ import uuid
 from flask import request
 from flask_restx import Namespace, Resource, fields
 from sqlalchemy.exc import IntegrityError
+from services.queue_service import send_confirmation_request
 from util.utils import parse_time_slot
 from services.db_service import add_reservation, get_reservation, delete_reservation
 
@@ -21,6 +22,7 @@ class Reservation(Resource):
     }))
     @api.response(201, "Reservation saved")
     @api.response(400, "Missing required fields")
+    @api.response(500, "Error sending confirmation request, please contact restaurant staff")
     def post(self):
         data = request.json
         if not data:
@@ -58,8 +60,11 @@ class Reservation(Resource):
             )
             if not result:
                 return 'Table not found or request parameters are invalid', 400
-            return result.get('id'), 201
-        except IntegrityError as e:
+            if(send_confirmation_request(reservation=result)):
+                return result.get('id'), 201
+            else:
+                return 'Error sending confirmation request, please contact restaurant staff',500
+        except IntegrityError:
             return 'Invalid request', 400
 
 @api.route('/<int:reservation_id>')
