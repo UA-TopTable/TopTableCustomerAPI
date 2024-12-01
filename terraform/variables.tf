@@ -172,3 +172,13 @@ variable "oauth_scopes" {
     "profile"
   ]
 }
+
+variable "mail_username" {
+  description = "mail username"
+  type        = string
+}
+
+variable "mail_password" {
+  description = "mail password"
+  type        = string
+}
