@@ -373,6 +373,10 @@ resource "aws_ecs_task_definition" "customer_app" {
         {
           name  = "DB_PASSWD"
           value = var.db_password
+        },
+        {
+          name="SQS_RESERVATION_RESQUESTS_QUEUE_URL"
+          value=aws_sqs_queue.toptable_queue.reservation_confirmation_queue
         }
       ]
       logConfiguration = {
