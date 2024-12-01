@@ -174,11 +174,11 @@ variable "oauth_scopes" {
 }
 
 variable "mail_username" {
-  description = "mail username"
-  type        = string
+  description="gmail address for the origin email (full)"
+  type=string
 }
 
 variable "mail_password" {
-  description = "mail password"
-  type        = string
+  description="gmail password"
+  type=string
 }

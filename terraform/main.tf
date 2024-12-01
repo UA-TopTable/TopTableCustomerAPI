@@ -367,6 +367,10 @@ resource "aws_ecs_task_definition" "customer_app" {
         {
           name  = "DB_PASSWD"
           value = var.db_password
+        },
+        {
+          name="SQS_RESERVATION_RESQUESTS_QUEUE_URL"
+          value=aws_sqs_queue.toptable_queue.url
         }
       ]
       logConfiguration = {
@@ -571,6 +575,18 @@ resource "aws_ecs_task_definition" "staff_app" {
         {
           name  = "DB_PASSWD"
           value = var.db_password
+        },
+        {
+          name="MAIL_USERNAME",
+          value=var.mail_username
+        },
+        {
+          name="MAIL_PASSWORD"
+          value=var.mail_password
+        },
+        {
+          name="SQS_RESERVATION_RESQUESTS_QUEUE_URL"
+          value=aws_sqs_queue.toptable_queue.url
         }
       ]
       logConfiguration = {
@@ -591,7 +607,10 @@ resource "aws_ecs_task_definition" "staff_app" {
     create_before_destroy = true
   }
 
-  depends_on = [aws_db_instance.mysql]
+  depends_on = [
+    aws_db_instance.mysql,
+    aws_sqs_queue.toptable_queue
+  ]
 }
 
 # ECS Service for staff app
@@ -852,6 +871,12 @@ resource "aws_lb_listener" "http" {
   depends_on = [aws_lb_target_group.customer_app]
 }
 
+# --------------------------------- SQS Setup  ---------------------------------
+resource "aws_sqs_queue" "toptable_queue" {
+  name = "reservation_confirmation_queue"
+}
+
+
 # --------------------------------- Outputs ---------------------------------
 output "alb_dns_name" {
   description = "The DNS name of the load balancer"
@@ -876,6 +901,11 @@ output "rds_database_name" {
 output "rds_username" {
   value     = aws_db_instance.mysql.username
   sensitive = true
+}
+
+output "reservation_confirmation_queue_url" {
+  description="The URL of the reservation confirmation queue"
+  value=aws_sqs_queue.toptable_queue.url
 }
 
 locals {
