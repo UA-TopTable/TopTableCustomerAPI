@@ -376,7 +376,7 @@ resource "aws_ecs_task_definition" "customer_app" {
         },
         {
           name="SQS_RESERVATION_RESQUESTS_QUEUE_URL"
-          value=aws_sqs_queue.toptable_queue.reservation_confirmation_queue
+          value=aws_sqs_queue.toptable_queue.url
         }
       ]
       logConfiguration = {
@@ -589,10 +589,10 @@ resource "aws_ecs_task_definition" "staff_app" {
         {
           name="MAIL_PASSWORD"
           value=var.mail_password
-        }
+        },
         {
           name="SQS_RESERVATION_RESQUESTS_QUEUE_URL"
-          value=aws_sqs_queue.toptable_queue.reservation_confirmation_queue
+          value=aws_sqs_queue.toptable_queue.url
         }
       ]
       logConfiguration = {
@@ -945,7 +945,7 @@ output "rds_username" {
 
 output "reservation_confirmation_queue_url" {
   description="The URL of the reservation confirmation queue"
-  value=aws_sqs_queue.toptable_queue.reservation_confirmation_queue.url
+  value=aws_sqs_queue.toptable_queue.url
 }
 
 locals {
