@@ -786,7 +786,8 @@ resource "aws_cognito_user_pool_client" "app_client" {
   user_pool_id    = aws_cognito_user_pool.proj_user_pool.id
   generate_secret = true
   callback_urls = concat(var.callback_urls, [
-    "https://${aws_lb.app.dns_name}/auth/callback",
+    "https://${aws_lb.app.dns_name}/customer/auth/callback",
+    "https://${aws_lb.app.dns_name}/staff/auth/callback",
     "https://${aws_lb.app.dns_name}/oauth2/idpresponse"
   ])
 
