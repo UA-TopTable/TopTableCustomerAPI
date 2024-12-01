@@ -172,3 +172,13 @@ variable "oauth_scopes" {
     "profile"
   ]
 }
+
+variable "mail_username" {
+  description="gmail address for the origin email (full)"
+  type=string
+}
+
+variable "mail_password" {
+  description="gmail password"
+  type=string
+}
