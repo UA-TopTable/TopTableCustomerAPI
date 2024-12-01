@@ -573,9 +573,13 @@ resource "aws_ecs_task_definition" "staff_app" {
           value = var.db_password
         },
         {
-          name="SQS_ORIGIN_EMAIL",
-          value=var.origin_email
+          name="MAIL_USERNAME",
+          value=var.mail_username
         },
+        {
+          name="MAIL_PASSWORD"
+          value=var.mail_password
+        }
         {
           name="SQS_RESERVATION_RESQUESTS_QUEUE_URL"
           value=aws_sqs_queue.toptable_queue.reservation_confirmation_queue
