@@ -340,7 +340,7 @@ resource "aws_ecs_task_definition" "customer_app" {
         },
         {
           name  = "COGNITO_DOMAIN"
-          value = var.cognito_domain
+          value = aws_cognito_user_pool.proj_user_pool.domain
         },
         {
           name  = "COGNITO_USER_POOL_CLIENT_ID"
@@ -375,8 +375,8 @@ resource "aws_ecs_task_definition" "customer_app" {
           value = var.db_password
         },
         {
-          name="SQS_RESERVATION_RESQUESTS_QUEUE_URL"
-          value=aws_sqs_queue.toptable_queue.url
+          name  = "SQS_RESERVATION_RESQUESTS_QUEUE_URL"
+          value = aws_sqs_queue.toptable_queue.url
         }
       ]
       logConfiguration = {
@@ -464,7 +464,7 @@ resource "aws_lb_listener_rule" "customer" {
     authenticate_cognito {
       user_pool_arn       = aws_cognito_user_pool.proj_user_pool.arn
       user_pool_client_id = aws_cognito_user_pool_client.app_client.id
-      user_pool_domain    = var.cognito_domain
+      user_pool_domain    = aws_cognito_user_pool.proj_user_pool.domain
       session_cookie_name = "AWSELBAuthSessionCookieCustomer"
       session_timeout     = 3600
     }
@@ -552,7 +552,7 @@ resource "aws_ecs_task_definition" "staff_app" {
         },
         {
           name  = "COGNITO_DOMAIN"
-          value = var.cognito_domain
+          value = aws_cognito_user_pool.proj_user_pool.domain
         },
         {
           name  = "COGNITO_USER_POOL_CLIENT_ID"
@@ -583,16 +583,16 @@ resource "aws_ecs_task_definition" "staff_app" {
           value = var.db_password
         },
         {
-          name="MAIL_USERNAME",
-          value=var.mail_username
+          name  = "MAIL_USERNAME",
+          value = var.mail_username
         },
         {
-          name="MAIL_PASSWORD"
-          value=var.mail_password
+          name  = "MAIL_PASSWORD"
+          value = var.mail_password
         },
         {
-          name="SQS_RESERVATION_RESQUESTS_QUEUE_URL"
-          value=aws_sqs_queue.toptable_queue.url
+          name  = "SQS_RESERVATION_RESQUESTS_QUEUE_URL"
+          value = aws_sqs_queue.toptable_queue.url
         }
       ]
       logConfiguration = {
@@ -672,7 +672,7 @@ resource "aws_lb_listener_rule" "staff" {
     authenticate_cognito {
       user_pool_arn       = aws_cognito_user_pool.proj_user_pool.arn
       user_pool_client_id = aws_cognito_user_pool_client.app_client.id
-      user_pool_domain    = var.cognito_domain
+      user_pool_domain    = aws_cognito_user_pool.proj_user_pool.domain
       session_cookie_name = "AWSELBAuthSessionCookie"
       session_timeout     = 3600
     }
@@ -866,7 +866,7 @@ resource "aws_lb_listener" "https" {
     authenticate_cognito {
       user_pool_arn       = aws_cognito_user_pool.proj_user_pool.arn
       user_pool_client_id = aws_cognito_user_pool_client.app_client.id
-      user_pool_domain    = var.cognito_domain
+      user_pool_domain    = aws_cognito_user_pool.proj_user_pool.domain
 
       authentication_request_extra_params = {
         prompt = "login"
@@ -945,8 +945,8 @@ output "rds_username" {
 }
 
 output "reservation_confirmation_queue_url" {
-  description="The URL of the reservation confirmation queue"
-  value=aws_sqs_queue.toptable_queue.url
+  description = "The URL of the reservation confirmation queue"
+  value       = aws_sqs_queue.toptable_queue.url
 }
 
 locals {
