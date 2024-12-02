@@ -19,9 +19,12 @@ Note: if you are running terraform multiple times between sessions (or if you re
    3. Click Roles, then LabRole
    4. Open the "Trust Relationship" tab
    5. Click "Edit trust policy"
-   6. After the "Service" (innermost) array, add:
+   6. Inside the "Service" array add:
+      1. "ecs-tasks.amazonaws.com",
+      2. "ecs.amazonaws.com"
+   7. After the "Service" array, add:
       1. "AWS": "arn:aws:sts::[account_id]:assumed-role/[Federated user]" (you can find federated user below accountId on the top-right corner)
-   7. Ensure there aren't any syntax errors and apply changes
+   8. Ensure there aren't any syntax errors and apply changes
 4. Add necessary permissions (Note: this is how I do it, there might be multiple correct ways):
    1. Still on the "LabRole" page, click the "Permissions" tab
    2. Click "Add permissions" and "Attach Policies"
