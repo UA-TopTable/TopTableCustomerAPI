@@ -1,6 +1,12 @@
 # Provider configuration
 provider "aws" {
   region = var.aws_region
+
+
+  assume_role {
+    role_arn     = var.role_for_tasks
+    session_name = "terraform-session"
+  }
 }
 
 # --------------------------------- VPC and subnets ----------------------------------
@@ -452,7 +458,7 @@ resource "aws_lb_listener_rule" "customer" {
   action {
     type = "authenticate-cognito"
     authenticate_cognito {
-      user_pool_arn       = data.aws_cognito_user_pools.existing.arns[0]
+      user_pool_arn       = aws_cognito_user_pool.proj_user_pool.arn
       user_pool_client_id = aws_cognito_user_pool_client.app_client.id
       user_pool_domain    = var.cognito_domain
       session_cookie_name = "AWSELBAuthSessionCookieCustomer"
@@ -645,7 +651,7 @@ resource "aws_lb_listener_rule" "staff" {
   action {
     type = "authenticate-cognito"
     authenticate_cognito {
-      user_pool_arn       = data.aws_cognito_user_pools.existing.arns[0]
+      user_pool_arn       = aws_cognito_user_pool.proj_user_pool.arn
       user_pool_client_id = aws_cognito_user_pool_client.app_client.id
       user_pool_domain    = var.cognito_domain
       session_cookie_name = "AWSELBAuthSessionCookie"
@@ -717,13 +723,48 @@ resource "aws_security_group" "alb" {
 }
 
 # --------------------------------- Cognito Client / ELB Callback Binding ---------------------------------
-data "aws_cognito_user_pools" "existing" {
-  name = var.cognito_user_pool_name
+
+resource "aws_cognito_user_pool" "proj_user_pool" {
+  name = "proj_user_pool"
+
+  password_policy {
+    minimum_length    = 8
+    require_lowercase = true
+    require_numbers   = true
+    require_symbols   = true
+    require_uppercase = true
+  }
+
+  auto_verified_attributes = ["email"]
+
+  schema {
+    attribute_data_type = "String"
+    name                = "email"
+    required            = true
+    mutable             = false
+    string_attribute_constraints {
+      min_length = "1"
+      max_length = "2048"
+    }
+  }
+
+  admin_create_user_config {
+    allow_admin_create_user_only = false
+  }
+
+  tags = {
+    Name = "proj_user_pool"
+  }
+}
+
+resource "aws_cognito_user_pool_domain" "new_domain" {
+  domain       = "pool-domain-iky"
+  user_pool_id = aws_cognito_user_pool.proj_user_pool.id
 }
 
 resource "aws_cognito_user_pool_client" "app_client" {
   name            = var.cognito_user_pool_client_name
-  user_pool_id    = data.aws_cognito_user_pools.existing.ids[0]
+  user_pool_id    = aws_cognito_user_pool.proj_user_pool.id
   generate_secret = true
   callback_urls = concat(var.callback_urls, [
     "https://${aws_lb.app.dns_name}/auth/callback",
@@ -803,7 +844,7 @@ resource "aws_lb_listener" "https" {
     type = "authenticate-cognito"
 
     authenticate_cognito {
-      user_pool_arn       = data.aws_cognito_user_pools.existing.arns[0]
+      user_pool_arn       = aws_cognito_user_pool.proj_user_pool.arn
       user_pool_client_id = aws_cognito_user_pool_client.app_client.id
       user_pool_domain    = var.cognito_domain
 
