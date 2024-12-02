@@ -340,7 +340,7 @@ resource "aws_ecs_task_definition" "customer_app" {
         },
         {
           name  = "COGNITO_DOMAIN"
-          value = aws_cognito_user_pool.proj_user_pool.domain
+          value = aws_cognito_user_pool_domain.new_domain.domain
         },
         {
           name  = "COGNITO_USER_POOL_CLIENT_ID"
@@ -464,7 +464,7 @@ resource "aws_lb_listener_rule" "customer" {
     authenticate_cognito {
       user_pool_arn       = aws_cognito_user_pool.proj_user_pool.arn
       user_pool_client_id = aws_cognito_user_pool_client.app_client.id
-      user_pool_domain    = aws_cognito_user_pool.proj_user_pool.domain
+      user_pool_domain    = aws_cognito_user_pool_domain.new_domain.domain
       session_cookie_name = "AWSELBAuthSessionCookieCustomer"
       session_timeout     = 3600
     }
@@ -552,7 +552,7 @@ resource "aws_ecs_task_definition" "staff_app" {
         },
         {
           name  = "COGNITO_DOMAIN"
-          value = aws_cognito_user_pool.proj_user_pool.domain
+          value = aws_cognito_user_pool_domain.new_domain.domain
         },
         {
           name  = "COGNITO_USER_POOL_CLIENT_ID"
@@ -672,7 +672,7 @@ resource "aws_lb_listener_rule" "staff" {
     authenticate_cognito {
       user_pool_arn       = aws_cognito_user_pool.proj_user_pool.arn
       user_pool_client_id = aws_cognito_user_pool_client.app_client.id
-      user_pool_domain    = aws_cognito_user_pool.proj_user_pool.domain
+      user_pool_domain    = aws_cognito_user_pool_domain.new_domain.domain
       session_cookie_name = "AWSELBAuthSessionCookie"
       session_timeout     = 3600
     }
@@ -866,7 +866,7 @@ resource "aws_lb_listener" "https" {
     authenticate_cognito {
       user_pool_arn       = aws_cognito_user_pool.proj_user_pool.arn
       user_pool_client_id = aws_cognito_user_pool_client.app_client.id
-      user_pool_domain    = aws_cognito_user_pool.proj_user_pool.domain
+      user_pool_domain    = aws_cognito_user_pool_domain.new_domain.domain
 
       authentication_request_extra_params = {
         prompt = "login"
