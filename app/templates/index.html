@@ -53,6 +53,7 @@
               <h5 class="card-title">{{ restaurant.name }}</h5>
               <p class="card-text">{{ restaurant.description }}</p>
               <p class="card-text">{{ restaurant.address }}</p>
+              <p class="card-text">{{ restaurant.food_category.value }}</p>
               <a href="/customer/ui/book_restaurant/{{ restaurant.id }}" class="btn btn-primary">Book a table now</a>
             </div>
           </div>
