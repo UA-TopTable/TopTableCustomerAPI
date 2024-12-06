@@ -477,25 +477,6 @@ resource "aws_lb_listener_rule" "customer" {
   }
 }
 
-resource "aws_lb_listener_rule" "socket" {
-  listener_arn = aws_lb_listener.https.arn
-  priority = 200
-
-  action {
-    type = "redirect"
-    redirect {
-      path        = "/staff/socketio#{path}"
-      status_code = "HTTP_301"
-    }
-  }
-
-  condition {
-    path_pattern {
-      values = ["/socketio*"]
-    }
-  }
-}
-
 # --------------------------------- Staff app ---------------------------------
 # CloudWatch Log Group for staff app
 resource "aws_cloudwatch_log_group" "ecs_logs_staff" {
