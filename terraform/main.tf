@@ -477,6 +477,25 @@ resource "aws_lb_listener_rule" "customer" {
   }
 }
 
+resource "aws_lb_listener_rule" "socket" {
+  listener_arn = aws_lb_listener.https.arn
+  priority = 200
+
+  action {
+    type = "redirect"
+    redirect {
+      path        = "/staff/socketio#{path}"
+      status_code = "HTTP_301"
+    }
+  }
+
+  condition {
+    path_pattern {
+      values = ["/socketio*"]
+    }
+  }
+}
+
 # --------------------------------- Staff app ---------------------------------
 # CloudWatch Log Group for staff app
 resource "aws_cloudwatch_log_group" "ecs_logs_staff" {
@@ -643,6 +662,12 @@ resource "aws_lb_target_group" "staff_app" {
   protocol    = "HTTP"
   vpc_id      = aws_vpc.main.id
   target_type = "ip"
+
+  stickiness {
+    type            = "lb_cookie"
+    cookie_duration = 86400
+    enabled         = true
+  }
 
   health_check {
     healthy_threshold   = "3"
