@@ -898,7 +898,9 @@ resource "aws_lb_listener" "http" {
 
 # --------------------------------- SQS Setup  ---------------------------------
 resource "aws_sqs_queue" "toptable_queue" {
-  name = "reservation_confirmation_queue"
+  name = "reservation_confirmation_queue.fifo"
+  fifo_queue                  = true
+  content_based_deduplication = true
 }
 
 
