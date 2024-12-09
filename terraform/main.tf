@@ -775,9 +775,12 @@ resource "aws_cognito_user_pool" "proj_user_pool" {
     Name = "proj_user_pool"
   }
 }
+resource "random_id" "prefix" {
+  byte_length = 4
+}
 
 resource "aws_cognito_user_pool_domain" "new_domain" {
-  domain       = "pool-domain-iky"
+  domain       = "pool-domain-${random_id.prefix.hex}"
   user_pool_id = aws_cognito_user_pool.proj_user_pool.id
 }
 
