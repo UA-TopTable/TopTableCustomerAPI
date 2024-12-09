@@ -800,6 +800,8 @@ resource "aws_cognito_user_pool_client" "app_client" {
   callback_urls = concat(var.callback_urls, [
     "https://${aws_lb.app.dns_name}/customer/auth/callback",
     "https://${aws_lb.app.dns_name}/staff/auth/callback",
+    "http://localhost:5002/staff/auth/callback",
+    "http://localhost:5002/customer/auth/callback",
     "https://${aws_lb.app.dns_name}/oauth2/idpresponse"
   ])
 
@@ -964,6 +966,11 @@ output "cognito_domain" {
 output "cognito_client" {
   description = "cognito client"
   value       = aws_cognito_user_pool_client.app_client.id
+}
+
+output "cognito_secret" {
+  description = "cognito secre"
+  value       = nonsensitive(aws_cognito_user_pool_client.app_client.client_secret)
 }
 
 output "reservation_confirmation_queue_url" {
