@@ -369,8 +369,8 @@ resource "aws_ecs_task_definition" "customer_app" {
           value = var.db_password
         },
         {
-          name="SQS_RESERVATION_RESQUESTS_QUEUE_URL"
-          value=aws_sqs_queue.toptable_queue.url
+          name  = "SQS_RESERVATION_RESQUESTS_QUEUE_URL"
+          value = aws_sqs_queue.toptable_queue.url
         }
       ]
       logConfiguration = {
@@ -577,16 +577,16 @@ resource "aws_ecs_task_definition" "staff_app" {
           value = var.db_password
         },
         {
-          name="MAIL_USERNAME",
-          value=var.mail_username
+          name  = "MAIL_USERNAME",
+          value = var.mail_username
         },
         {
-          name="MAIL_PASSWORD"
-          value=var.mail_password
+          name  = "MAIL_PASSWORD"
+          value = var.mail_password
         },
         {
-          name="SQS_RESERVATION_RESQUESTS_QUEUE_URL"
-          value=aws_sqs_queue.toptable_queue.url
+          name  = "SQS_RESERVATION_RESQUESTS_QUEUE_URL"
+          value = aws_sqs_queue.toptable_queue.url
         }
       ]
       logConfiguration = {
@@ -747,6 +747,8 @@ resource "aws_cognito_user_pool_client" "app_client" {
   callback_urls = concat(var.callback_urls, [
     "https://${aws_lb.app.dns_name}/customer/auth/callback",
     "https://${aws_lb.app.dns_name}/staff/auth/callback",
+    "http://localhost:5002/staff/auth/callback",
+    "http://localhost:5002/customer/auth/callback",
     "https://${aws_lb.app.dns_name}/oauth2/idpresponse"
   ])
 
@@ -904,8 +906,8 @@ output "rds_username" {
 }
 
 output "reservation_confirmation_queue_url" {
-  description="The URL of the reservation confirmation queue"
-  value=aws_sqs_queue.toptable_queue.url
+  description = "The URL of the reservation confirmation queue"
+  value       = aws_sqs_queue.toptable_queue.url
 }
 
 locals {
