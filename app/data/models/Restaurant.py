@@ -1,7 +1,45 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, DECIMAL
+from sqlalchemy import Column, Enum, Integer, String, Text, DateTime, ForeignKey, DECIMAL
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from . import Base
+from enum import Enum as PyEnum
+
+class FoodCategoryEnum(PyEnum):
+    ITALIAN = "Italian"
+    BURGER = "Burger"
+    JAPANESE = "Japanese"
+    CHINESE = "Chinese"
+    INDIAN = "Indian"
+    THAI = "Thai"
+    MEXICAN = "Mexican"
+    GREEK = "Greek"
+    LEBANESE = "Lebanese"
+    FRENCH = "French"
+    SPANISH = "Spanish"
+    KOREAN = "Korean"
+    VIETNAMESE = "Vietnamese"
+    SUSHI = "Sushi"
+    VEGETARIAN = "Vegetarian"
+    VEGAN = "Vegan"
+    FAST_FOOD = "Fast Food"
+    PIZZERIA = "Pizzeria"
+    BARBECUE = "Barbecue"
+    STEAKHOUSE = "Steakhouse"
+    CREPERIE = "Creperie"
+    CAJUN = "Cajun"
+    TUNISIAN = "Tunisian"
+    MOROCCAN = "Moroccan"
+    AFRICAN = "African"
+    ORIENTAL = "Oriental"
+    BRAZILIAN = "Brazilian"
+    AMERICAN = "American"
+    FUSION = "Fusion"
+    STREET_FOOD = "Street Food"
+    BISTRO = "Bistro"
+    SANDWICH_SHOP = "Sandwich Shop"
+    SEAFOOD = "Seafood"
+    TAPAS = "Tapas"
+    RACLETTE_FONDUE = "Raclette/Fondue"
 
 
 class Restaurant(Base):
@@ -18,6 +56,7 @@ class Restaurant(Base):
     owner_user_id = Column(Integer, ForeignKey('UserAccount.id'))
     created_date = Column(DateTime, server_default=func.now())
     updated_date = Column(DateTime, server_default=func.now(), onupdate=func.now())
+    food_category = Column(Enum(FoodCategoryEnum))
 
     dining_tables = relationship("DiningTable", back_populates="restaurant",lazy="joined")
 

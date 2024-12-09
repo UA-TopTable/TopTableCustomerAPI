@@ -10,8 +10,6 @@ from .ui import api as api_ui
 from .user import api as api_user
 from secret import ROOT_PATH_PREFIX
 
-from secret import ROOT_PATH_PREFIX
-
 blueprint = Blueprint('apis', __name__, url_prefix=ROOT_PATH_PREFIX)
 
 apidoc.static_url_path = f'{ROOT_PATH_PREFIX}/swaggerui'

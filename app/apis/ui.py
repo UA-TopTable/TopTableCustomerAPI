@@ -2,7 +2,7 @@ import boto3
 from urllib.parse import urlparse
 from flask import make_response, redirect, render_template, request
 from flask_restx import Namespace,Resource
-from services.db_service import get_reservation, get_restaurant, get_all_restaurants, get_pictures, get_all_tables,get_table_by_id,get_user_by_id,get_user_reservations,get_restaurant_by_id
+from services.db_service import get_reservation, get_restaurant, get_all_restaurants, get_pictures, get_all_tables,get_table_by_id,get_user_reservations,get_restaurant_by_id
 from services.auth_service import get_user
 
 api=Namespace("ui",path="/ui",description="UI-related endpoints")

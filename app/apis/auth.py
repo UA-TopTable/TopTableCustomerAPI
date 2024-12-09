@@ -53,9 +53,6 @@ class GetCurrentUser(Resource):
             access_token=request.cookies.get("access_token")
         else:
             return redirect("/auth/login")
-        
-        if(access_token is None):
-            return "no access token",400
         user=get_user(access_token)
         if user is None:
             return "invalid user",400
