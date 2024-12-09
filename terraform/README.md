@@ -35,3 +35,42 @@ Note: if you are running terraform multiple times between sessions (or if you re
    4. Click "add permissions"
 6. Run "terraform plan" (just to make sure)
 7. Run "terraform apply"
+
+
+![alt text](image.png)
+
+
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:sts::888435307569:assumed-role/voclabs/user3570711=NAMEEE", # change with yours
+                "Service": [
+                    "cloud9.amazonaws.com",
+                    "kms.amazonaws.com",
+                    "cloudfront.amazonaws.com",
+                    "sns.amazonaws.com",
+                    "ssm.amazonaws.com",
+                    "lambda.amazonaws.com",
+                    "logs.amazonaws.com",
+                    "ecs-tasks.amazonaws.com",
+                    "events.amazonaws.com",
+                    "autoscaling.amazonaws.com",
+                    "cloudtrail.amazonaws.com",
+                    "s3.amazonaws.com",
+                    "sqs.amazonaws.com",
+                    "ec2.amazonaws.com",
+                    "dynamodb.amazonaws.com",
+                    "resource-groups.amazonaws.com",
+                    "cloudformation.amazonaws.com",
+                    "elasticbeanstalk.amazonaws.com",
+                    "elasticloadbalancing.amazonaws.com",
+                    "rds.amazonaws.com"
+                ]
+            },
+            "Action": "sts:AssumeRole"
+        }
+    ]
+}

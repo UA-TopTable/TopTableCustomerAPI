@@ -340,7 +340,7 @@ resource "aws_ecs_task_definition" "customer_app" {
         },
         {
           name  = "COGNITO_DOMAIN"
-          value = aws_cognito_user_pool_domain.new_domain.domain
+          value = "${aws_cognito_user_pool_domain.new_domain.domain}.auth.${var.aws_region}.amazoncognito.com"
         },
         {
           name  = "COGNITO_USER_POOL_CLIENT_ID"
@@ -552,7 +552,7 @@ resource "aws_ecs_task_definition" "staff_app" {
         },
         {
           name  = "COGNITO_DOMAIN"
-          value = aws_cognito_user_pool_domain.new_domain.domain
+          value = "${aws_cognito_user_pool_domain.new_domain.domain}.auth.${var.aws_region}.amazoncognito.com"
         },
         {
           name  = "COGNITO_USER_POOL_CLIENT_ID"
@@ -781,6 +781,18 @@ resource "aws_cognito_user_pool_domain" "new_domain" {
   user_pool_id = aws_cognito_user_pool.proj_user_pool.id
 }
 
+resource "aws_cognito_user" "default_user" {
+  user_pool_id = aws_cognito_user_pool.proj_user_pool.id
+  username     = "ilker"
+  attributes = {
+    email = var.mail_username
+    name  = "Ilker Atik"
+  }
+  desired_delivery_mediums = ["EMAIL"]
+  password                 = "359izmirA_"
+  depends_on               = [aws_cognito_user_pool.proj_user_pool]
+}
+
 resource "aws_cognito_user_pool_client" "app_client" {
   name            = var.cognito_user_pool_client_name
   user_pool_id    = aws_cognito_user_pool.proj_user_pool.id
@@ -944,6 +956,16 @@ output "rds_username" {
   sensitive = true
 }
 
+output "cognito_domain" {
+  description = "cognito domain"
+  value       = aws_cognito_user_pool_domain.new_domain.domain
+}
+
+output "cognito_client" {
+  description = "cognito client"
+  value       = aws_cognito_user_pool_client.app_client.id
+}
+
 output "reservation_confirmation_queue_url" {
   description = "The URL of the reservation confirmation queue"
   value       = aws_sqs_queue.toptable_queue.url
@@ -956,5 +978,3 @@ locals {
     ManagedBy   = "Terraform"
   }
 }
-
-
