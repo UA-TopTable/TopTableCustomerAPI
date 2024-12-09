@@ -5,6 +5,8 @@ from . import Base
 from enum import Enum as PyEnum
 
 class FoodCategoryEnum(PyEnum):
+    PORTUGUESE = "Portuguese"
+    TURKISH = "Turkish"
     ITALIAN = "Italian"
     BURGER = "Burger"
     JAPANESE = "Japanese"
