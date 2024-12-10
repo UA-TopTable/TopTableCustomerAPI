@@ -807,6 +807,12 @@ resource "aws_cognito_user_pool_client" "app_client" {
     "http://localhost:5002/customer/auth/callback",
     "https://${aws_lb.app.dns_name}/oauth2/idpresponse"
   ])
+  logout_urls = [
+    "https://${aws_lb.app.dns_name}/customer/auth/logout",
+    "https://${aws_lb.app.dns_name}/staff/auth/logout",
+    "http://localhost:5002/staff/auth/logout",
+    "http://localhost:5002/customer/auth/logout"
+  ]
 
   allowed_oauth_flows                  = ["code"]
   allowed_oauth_flows_user_pool_client = true
