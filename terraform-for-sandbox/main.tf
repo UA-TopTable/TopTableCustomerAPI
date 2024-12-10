@@ -465,7 +465,7 @@ resource "aws_lb_listener_rule" "customer" {
       user_pool_arn       = aws_cognito_user_pool.proj_user_pool.arn
       user_pool_client_id = aws_cognito_user_pool_client.app_client.id
       user_pool_domain    = aws_cognito_user_pool_domain.new_domain.domain
-      session_cookie_name = "AWSELBAuthSessionCookieCustomer"
+      session_cookie_name = "AWSELBAuthSessionCookie"
       session_timeout     = 3600
     }
   }
