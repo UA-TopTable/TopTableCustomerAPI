@@ -1,34 +1,33 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container mt-5">
-    <h1 class="mb-4">Reservation Details</h1>
-    {% if reservation %}
-    <div class="card">
-        <div class="card-body">
-            <p><strong><i class="fas fa-user"></i> User ID:</strong> {{ reservation.user_id }}</p>
-            <p><strong><i class="fas fa-utensils"></i> Restaurant ID:</strong> {{ reservation.restaurant_id }}</p>
-            <p><strong><i class="fas fa-utensils"></i> Dining Table ID:</strong> {{ reservation.dining_table_id }}</p>
-            <p><strong><i class="fas fa-user-group"></i> Number of People:</strong> {{ reservation.number_of_people }}
-            </p>
-            <p><strong><i class="fas fa-clock"></i> Reservation Start Time:</strong> {{
-                reservation.reservation_start_time }}</p>
-            <p><strong><i class="fas fa-clock"></i> Reservation End Time:</strong> {{ reservation.reservation_end_time
-                }}</p>
-            <p><strong><i class="fas fa-circle-info"></i> Status:</strong> {{ reservation.status }}</p>
-            <p><strong><i class="fas fa-bell"></i> Special Requests:</strong> {{ reservation.special_requests }}</p>
-            <p><strong><i class="fas fa-id-card"></i> Reservation Code:</strong> {{ reservation.reservation_code }}</p>
-            <p><strong><i class="fas fa-id-card"></i> Reservation ID:</strong> {{ reservation.id }}</p>
-        </div>
-    </div>
-    {% else %}
-    <div class="alert alert-warning" role="alert">
-        Reservation not found.
-    </div>
-    {% endif %}
+<div class="p-2 bg-light rounded">
+    <h2 class="mb-4">Reservation Details</h2>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+{% if reservation %}
+<div class="card mt-4 px-4">
+    <div class="card-body">
+        <p><strong><i class="fas fa-user"></i> User ID:</strong> {{ reservation.user_id or "N/A" }}</p>
+        <p><strong><i class="fas fa-utensils"></i> Restaurant ID:</strong> {{ reservation.restaurant_id or "N/A" }}</p>
+        <p><strong><i class="fas fa-chair"></i> Dining Table ID:</strong> {{ reservation.dining_table_id or "N/A" }}</p>
+        <p><strong><i class="fas fa-user-group"></i> Number of People:</strong> {{ reservation.number_of_people or "N/A"
+            }}</p>
+        <p><strong><i class="fas fa-clock"></i> Reservation Start Time:</strong> {{ reservation.reservation_start_time
+            or "N/A" }}</p>
+        <p><strong><i class="fas fa-clock"></i> Reservation End Time:</strong> {{ reservation.reservation_end_time or
+            "N/A" }}</p>
+        <p><strong><i class="fas fa-circle-info"></i> Status:</strong> {{ reservation.status or "N/A" }}</p>
+        <p><strong><i class="fas fa-bell"></i> Special Requests:</strong> {{ reservation.special_requests or "None" }}
+        </p>
+        <p><strong><i class="fas fa-id-card"></i> Reservation Code:</strong> {{ reservation.reservation_code or "N/A" }}
+        </p>
+        <p><strong><i class="fas fa-id-card"></i> Reservation ID:</strong> {{ reservation.id or "N/A" }}</p>
+    </div>
+</div>
+{% else %}
+<div class="alert alert-warning mt-4" role="alert">
+    Reservation not found. Please check your details and try again.
+</div>
+{% endif %}
 {% endblock %}

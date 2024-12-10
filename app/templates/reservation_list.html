@@ -1,4 +1,4 @@
-<table class="table">
+<table class="table px-5">
     <thead>
         <tr>
             <th scope="col">Table number</th>
@@ -24,12 +24,13 @@
             <td>{{reservation.special_requests}}</td>
             <td>
                 {% if can_change_status %}
-                
+
                 <form action="{{url_for('reservations', id=restaurant_id) }}" method="POST">
                     <input type="hidden" name="reservation_id" value="{{reservation.id}}">
                     <select class="form-select" name="status" onchange="this.form.submit()">
                         {% for status in ["pending","confirmed","cancelled"] %}
-                        <option {% if reservation.status == status %}selected{% endif %} value="{{status}}">{{status}}</option>
+                        <option {% if reservation.status==status %}selected{% endif %} value="{{status}}">{{status}}
+                        </option>
                         {% endfor %}
                     </select>
                 </form>
@@ -39,7 +40,8 @@
             </td>
             <td>
                 <form id="deleteReservation" method="GET">
-                    <button type="submit" title="Cancel reservation" class="btn btn-danger"><i class="bi bi-trash3"></i></button>
+                    <button type="submit" title="Cancel reservation" class="btn btn-danger"><i
+                            class="bi bi-trash3"></i></button>
                     <input type="hidden" id="deleteReservationId" name="reservationId" value="{{reservation.id}}">
                 </form>
             </td>
@@ -50,23 +52,23 @@
 
 
 <script>
-    document.getElementById('deleteReservation').addEventListener('submit', function(e) {
+    document.getElementById('deleteReservation').addEventListener('submit', function (e) {
         e.preventDefault();
         var form = e.target;
         var url = '/customer/api/v1/reservation/delete/' + form.querySelector('#deleteReservationId').value;
         fetch(url, {
             method: 'GET'
-            })
+        })
             .then(response => {
-            if (response.status === 200) {
-                alert('Reservation cancelled successfully');
-                window.location.reload();
-            } else {
-                alert('Failed to cancel reservation');
-            }
+                if (response.status === 200) {
+                    alert('Reservation cancelled successfully');
+                    window.location.reload();
+                } else {
+                    alert('Failed to cancel reservation');
+                }
             })
             .catch((error) => {
-            console.error('Error:', error);
+                console.error('Error:', error);
             });
     });
 </script>

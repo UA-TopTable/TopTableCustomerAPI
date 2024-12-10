@@ -46,7 +46,7 @@ Note: if you are running terraform multiple times between sessions (or if you re
         {
             "Effect": "Allow",
             "Principal": {
-                "AWS": "arn:aws:sts::888435307569:assumed-role/voclabs/user3570711=NAMEEE", # change with yours
+                "AWS": "arn:aws:sts::888435307569:assumed-role/voclabs/user3570711=ISMIHAN_ILKER_ATIK",
                 "Service": [
                     "cloud9.amazonaws.com",
                     "kms.amazonaws.com",
