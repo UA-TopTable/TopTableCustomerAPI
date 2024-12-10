@@ -478,7 +478,7 @@ resource "aws_lb_listener_rule" "customer" {
 
   condition {
     path_pattern {
-      values = ["/customer", "/customer/*"]
+      values = ["/customer", "/customer/*", "/customer/socket.io/*"]
     }
   }
 }
@@ -686,7 +686,7 @@ resource "aws_lb_listener_rule" "staff" {
 
   condition {
     path_pattern {
-      values = ["/staff", "/staff/*"]
+      values = ["/staff", "/staff/*", "/staff/socket.io/*"]
     }
   }
 }

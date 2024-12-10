@@ -1,8 +1,8 @@
 from flask import Flask
 from datetime import datetime
-from services.db_service import add_restaurant, add_table, add_working_hours, delete_all_data, add_reservation, save_user_account
+from services.db_service import add_picture, add_restaurant, add_table, add_working_hours, delete_all_data, add_reservation, save_user_account
 def create_mock_datas(app: Flask):
-    #delete_all_data() # Uncomment this line to delete all data
+    # delete_all_data() # Uncomment this line to delete all data
     user_data = {
         "full_name": "Test User Restaurant Owner",
         "email": "testuser@example.com",
@@ -20,12 +20,13 @@ def create_mock_datas(app: Flask):
         "location_address": "Address 1",
         "location_latitude": "1",
         "location_longitude": "1",
-        "restaurant_image": "image1",
+        "restaurant_image": "https://upload.wikimedia.org/wikipedia/commons/7/70/Restaurant_1_clip_art.png",
         "time_zone": "UTC",
         "owner_user_id": user_id
     }
     restaurant =  add_restaurant(restaurant_data)
     restr_id = restaurant.get('id')
+    picture = add_picture(restaurant_id=restr_id, picture_link="https://upload.wikimedia.org/wikipedia/commons/7/70/Restaurant_1_clip_art.png")
     app.logger.info('restaurant id', restr_id)
     days_of_week = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
     for day in days_of_week:

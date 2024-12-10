@@ -10,6 +10,14 @@ api=Namespace("ui",path="/ui",description="UI-related endpoints")
 @api.route("/restaurant/<int:id>")
 class RestaurantPage(Resource):
     def get(self, id):
+        if 'x-amzn-oidc-accesstoken' in request.headers:
+            access_token = request.headers.get('x-amzn-oidc-accesstoken')
+        elif "access_token" in request.cookies:
+            access_token=request.cookies.get("access_token")
+        else:
+            return "not authorized",401
+        user = get_user(access_token)
+
         tables = get_all_tables(id)
         restaurant = get_restaurant(id)
         if restaurant is None:
@@ -18,7 +26,7 @@ class RestaurantPage(Resource):
             return make_response("No tables for this restaurant", 404)
         else:
             return make_response(
-                render_template("restaurant.html", restaurant=restaurant, tables=tables),
+                render_template("restaurant.html", restaurant=restaurant, tables=tables, user=user),
                 200,
                 {'Content-Type': 'text/html'}
             )
@@ -26,12 +34,20 @@ class RestaurantPage(Resource):
 @api.route("/reservation/<int:id>")
 class ReservationPage(Resource):
     def get(self, id):
+        if 'x-amzn-oidc-accesstoken' in request.headers:
+            access_token = request.headers.get('x-amzn-oidc-accesstoken')
+        elif "access_token" in request.cookies:
+            access_token=request.cookies.get("access_token")
+        else:
+            return "not authorized",401
+        user = get_user(access_token)
+
         reservation = get_reservation(id)
         if reservation is None:
             return make_response("Reservation not found", 404)
         else:
             return make_response(
-                render_template("reservation.html", reservation=reservation),
+                render_template("reservation.html", reservation=reservation, user=user),
                 200,
                 {'Content-Type': 'text/html'}
             )
@@ -55,8 +71,8 @@ class HomePage(Resource):
             access_token=request.cookies.get("access_token")
         else:
             return "not authorized",401
-        
         user = get_user(access_token)
+
         restaurants = get_all_restaurants()
         try:
             for r in restaurants:
@@ -171,7 +187,7 @@ class UserReservationsPage(Resource):
         reservations.sort(key=lambda x: x['reservation_start_time'],reverse=True)
 
         return make_response(
-            render_template("reservations.html", reservations=reservations,restaurants=restaurants),
+            render_template("reservations.html", reservations=reservations,restaurants=restaurants, user=user),
             200,
             {'Content-Type': 'text/html'}
         )

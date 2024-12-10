@@ -2,18 +2,20 @@
 {%set can_change_status=False%}
 {% block content %}
 
-<h1>Reservation History:</h1>
-
-<form method="get" action="{{url_for('user_reservations_page')}}">
-    <div class="row justify-content-end">
+<div class="p-2 bg-light rounded text-center fw-bold">
+  <span class="mb-4">Reservation History</span>
+</div>
+<div class="p-2 bg-light rounded text-center">
+  <form method="get" action="{{url_for('user_reservations_page')}}">
+    <div class="row justify-content-center">
       <div class="col-auto">
-        <label for="startAfter" class="col-form-label">Starts after:</label>
+        <label for="startAfter" class="col-form-label">After:</label>
       </div>
       <div class="col-auto">
         <input type="datetime-local" id="startAfter" class="form-control" name="starts_after">
       </div>
       <div class="col-auto">
-        <label for="endsBefore" class="col-form-label">Ends before:</label>
+        <label for="endsBefore" class="col-form-label">Before:</label>
       </div>
       <div class="col-auto">
         <input type="datetime-local" id="endsBefore" class="form-control" name="ends_before">
@@ -23,17 +25,31 @@
       </div>
       <div class="col-auto">
         <select name="restaurant_id" class="form-select">
-            {% for restaurant in restaurants%}
-            <option value="{{restaurant[0]}}">{{restaurant[1]}}</option>
-            {% endfor %}
+          {% for restaurant in restaurants%}
+          <option value="{{restaurant[0]}}">{{restaurant[1]}}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-auto">
+        <label for="status" class="col-form-label">Status:</label>
+      </div>
+      <div class="col-auto">
+        <select name="status" class="form-select">
+          <option value="all">All</option>
+          <option value="confirmed">Confirmed</option>
+          <option value="pending">Pending</option>
+          <option value="cancelled">Cancelled</option>
         </select>
       </div>
       <div class="col-auto">
         <button class="btn btn-primary" type="submit">Apply</button>
       </div>
     </div>
-  </form>
-  
-{% include "reservation_list.html" %}
+</div>
+</form>
+<div class="p-2 bg-light rounded ">
+  {% include "reservation_list.html" %}
+</div>
+</div>
 
 {% endblock %}
