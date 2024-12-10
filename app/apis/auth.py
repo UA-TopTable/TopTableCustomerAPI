@@ -15,17 +15,15 @@ class Login(Resource):
     def get(self):
         return redirect(f"https://{COGNITO_DOMAIN}/login?&client_id={AWS_COGNITO_USER_POOL_CLIENT_ID}&redirect_uri={API_URL}/customer/auth/callback&response_type=code")
         
-@api.route("/sign_out")
+@api.route("/logout")
 class SignOut(Resource):
     @api.doc("sign out")
-    @api.response(301,"redirecting to home page")
-    def post(self):
-        resp=redirect("/") #TODO: change to restaurant home page (when we have one)
+    @api.response(301,"redirecting to cognito logout")
+    def get(self):
+        print("logging out")
+        resp=redirect(f"https://{COGNITO_DOMAIN}/logout?&client_id={AWS_COGNITO_USER_POOL_CLIENT_ID}&redirect_uri={API_URL}/customer/auth/callback&response_type=code")
         resp.delete_cookie("access_token")
         return resp
-    def get(self):
-        return redirect(f"https://{COGNITO_DOMAIN}/logout?&client_id={AWS_COGNITO_USER_POOL_CLIENT_ID}&redirect_uri={API_URL}/customer/auth/callback&response_type=code")
-
         
 @api.route("/callback")
 class Redirect(Resource):
