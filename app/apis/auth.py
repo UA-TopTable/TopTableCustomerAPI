@@ -4,7 +4,7 @@ from flask_restx import Namespace,Resource,fields
 from services.auth_service import exchange_token, get_user
 from secret import API_URL, APP_PORT, AWS_COGNITO_USER_POOL_CLIENT_ID, AWS_REGION, COGNITO_DOMAIN
 SESSION_COOKIE_NAME_0 = "AWSELBAuthSessionCookie-0"
-SESSION_COOKIE_NAME_0 = "AWSELBAuthSessionCookie-1"
+SESSION_COOKIE_NAME_1 = "AWSELBAuthSessionCookie-1"
 api=Namespace("auth",path="/auth",description="Authentication operations")
 
 cognito=boto3.client('cognito-idp',AWS_REGION)
@@ -25,7 +25,7 @@ class SignOut(Resource):
         resp=redirect(f"https://{COGNITO_DOMAIN}/logout?&client_id={AWS_COGNITO_USER_POOL_CLIENT_ID}&redirect_uri={API_URL}/customer/auth/callback&response_type=code")
         resp.delete_cookie("access_token")
         resp.set_cookie(SESSION_COOKIE_NAME_0, "empty", max_age=-3600)
-        resp.set_cookie(SESSION_COOKIE_NAME_0, "empty", max_age=-3600)
+        resp.set_cookie(SESSION_COOKIE_NAME_1, "empty", max_age=-3600)
         return resp
         
 @api.route("/callback")
