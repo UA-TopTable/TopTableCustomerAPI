@@ -22,6 +22,7 @@ def create_mock_datas(app: Flask):
         "location_longitude": "1",
         "restaurant_image": "https://upload.wikimedia.org/wikipedia/commons/7/70/Restaurant_1_clip_art.png",
         "time_zone": "UTC",
+        "food_category": "PORTUGUESE",
         "owner_user_id": user_id
     }
     restaurant =  add_restaurant(restaurant_data)

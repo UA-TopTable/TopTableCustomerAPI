@@ -2,7 +2,7 @@ import boto3
 from urllib.parse import urlparse
 from flask import make_response, redirect, render_template, request
 from flask_restx import Namespace,Resource
-from services.db_service import get_reservation, get_restaurant, get_all_restaurants, get_pictures, get_all_tables,get_table_by_id,get_user_reservations,get_restaurant_by_id
+from services.db_service import get_all_restaurants_filtered, get_reservation, get_restaurant, get_all_restaurants, get_pictures, get_all_tables,get_table_by_id,get_user_reservations,get_restaurant_by_id
 from services.auth_service import get_user
 
 api=Namespace("ui",path="/ui",description="UI-related endpoints")
@@ -65,15 +65,24 @@ class ReservationPage(Resource):
 @api.route("/home")
 class HomePage(Resource):
     def get(self):
-        if 'x-amzn-oidc-accesstoken' in request.headers:
-            access_token = request.headers.get('x-amzn-oidc-accesstoken')
-        elif "access_token" in request.cookies:
-            access_token=request.cookies.get("access_token")
-        else:
-            return "not authorized",401
-        user = get_user(access_token)
+        # if 'x-amzn-oidc-accesstoken' in request.headers:
+        #     access_token = request.headers.get('x-amzn-oidc-accesstoken')
+        # elif "access_token" in request.cookies:
+        #     access_token=request.cookies.get("access_token")
+        # else:
+        #     return "not authorized",401
+        # user = get_user(access_token)
+        user = {
+            "full_name": "Test User",
+            "email": "fdsaf"
+        }
 
-        restaurants = get_all_restaurants()
+        query = request.args.get('query', '')
+        category = request.args.get('category', '')
+        if query or category:
+            restaurants = get_all_restaurants_filtered(query,category)
+        else:
+            restaurants = get_all_restaurants()
         try:
             for r in restaurants:
                 pictures = get_pictures(r['id'])
@@ -145,13 +154,11 @@ class UserReservationsPage(Resource):
     @api.param("ends_before", "Filter reservations that end before date")
     @api.param("restaurant_id", "Filter reservations that belong to a specific restaurant")
     def get(self):
-        if 'x-amzn-oidc-accesstoken' in request.headers:
-            access_token = request.headers.get('x-amzn-oidc-accesstoken')
-        elif "access_token" in request.cookies:
-            access_token=request.cookies.get("access_token")
-        else:
-            return "no access token",400
-        user=get_user(access_token)
+        user = {
+            "full_name": "Test User",
+            "email": "fdsaf",
+            "id": "123"
+        }
 
         starts_after=None
         ends_before=None

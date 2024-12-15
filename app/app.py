@@ -10,6 +10,7 @@ def create_app():
     print("Running in ENV:", ENV)
     app.config['API_URL'] = API_URL
     api.init_app(app)
+    create_mock_datas(app)
     app.secret_key = FLASK_SECRET_KEY
     return app
 

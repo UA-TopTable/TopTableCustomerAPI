@@ -1,3 +1,4 @@
+from data.models.Restaurant import FoodCategoryEnum
 from services.db_service import get_all_restaurants, add_restaurant
 from flask_restx import Namespace, Resource, fields
 
@@ -40,3 +41,10 @@ class Restaurant(Resource):
         except Exception as e:
             print(e)
             return 'Invalid request', 400
+        
+@api.route("/food_categories")
+class FoodCategories(Resource):
+    @api.doc("get all food categories")
+    @api.response(200,description="food categories")
+    def get(self):
+        return {"categories": [category.value for category in FoodCategoryEnum]}
