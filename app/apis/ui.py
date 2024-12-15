@@ -76,9 +76,8 @@ class HomePage(Resource):
         restaurants = get_all_restaurants()
         try:
             for r in restaurants:
-                pictures = get_pictures(r['id'])
-                if not (pictures == [] or pictures is None):
-                    picture = pictures[0]
+                picture = r.get('restaurant_image')
+                if not (picture == '' or picture is None):
                     parsed_url = urlparse(picture['link'])
                     
                     bucket_name = parsed_url.netloc.split('.')[0]
@@ -89,7 +88,6 @@ class HomePage(Resource):
                             Params={'Bucket': bucket_name, 'Key': object_key},
                             ExpiresIn=3600 
                     )
-                    print(signed_url)
                     r['restaurant_image'] = signed_url
             
         except Exception as e:
@@ -107,6 +105,7 @@ class BookRestaurantPage(Resource):
     def get(self, id):
         restaurant = get_restaurant(id)
         pictures = get_pictures(id)
+        pictures_list = []
         try:
             if not (pictures == [] or pictures is None):
                 for picture in pictures : 
@@ -120,8 +119,13 @@ class BookRestaurantPage(Resource):
                             Params={'Bucket': bucket_name, 'Key': object_key},
                             ExpiresIn=3600 
                     )
-                    print(signed_url)
-                    picture['link'] = signed_url
+                    if picture['link'] == restaurant['restaurant_image']:
+                        picture['link'] = signed_url
+                        pictures_list.insert(0, picture)
+                    else :
+                        picture['link'] = signed_url
+                        pictures_list.append(picture)
+
         except Exception as e:
             print(e)
         
@@ -133,7 +137,7 @@ class BookRestaurantPage(Resource):
             return "not authorized",401
         user = get_user(access_token)
         return make_response(
-            render_template("book_restaurant.html", restaurant=restaurant, pictures=pictures, user=user),
+            render_template("book_restaurant.html", restaurant=restaurant, pictures=pictures_list, user=user),
             200,
             {'Content-Type': 'text/html'}
         )

@@ -69,60 +69,6 @@
         }
     });
 
-    // Upload Picture Form Submission
-    document.getElementById('uploadForm').addEventListener('submit', async function (event) {
-        event.preventDefault();
-
-        const fileInput = document.getElementById('file');
-        const restaurantId = document.getElementById('restaurant_id').textContent;
-
-        if (fileInput.files.length === 0) {
-            alert('Please select a picture to upload.');
-            return;
-        }
-
-        const formData = new FormData();
-        formData.append('file', fileInput.files[0]);
-        formData.append('restaurant_id', restaurantId);
-
-        try {
-            const response = await fetch(`${API_URL}/api/v1/upload/upload_picture`, { method: 'POST', body: formData });
-
-            if (!response.ok) throw new Error(await response.text());
-
-            document.getElementById('response').innerText = 'Image successfully uploaded!';
-        } catch (error) {
-            document.getElementById('response').innerText = `Error: ${error.message}`;
-        }
-    });
-
-    // Upload Description Form Submission
-    document.getElementById('descriptionForm').addEventListener('submit', async function (event) {
-        event.preventDefault();
-
-        const descriptionInput = document.getElementById('description');
-        const restaurantId = document.getElementById('restaurant_id').textContent;
-
-        if (!descriptionInput.value.trim()) {
-            alert("Description cannot be empty.");
-            return;
-        }
-
-        const formData = new FormData();
-        formData.append('description', descriptionInput.value);
-        formData.append('restaurant_id', restaurantId);
-
-        try {
-            const response = await fetch(`${API_URL}/api/v1/upload/upload_description`, { method: 'POST', body: formData });
-
-            if (!response.ok) throw new Error(await response.text());
-
-            document.getElementById('response').innerText = 'Description successfully modified!';
-        } catch (error) {
-            document.getElementById('response').innerText = `Error: ${error.message}`;
-        }
-    });
-
     // Display Error Alert
     function displayError(message) {
         const alertBox = document.getElementById("error_alert");
