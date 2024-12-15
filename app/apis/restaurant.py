@@ -47,4 +47,4 @@ class FoodCategories(Resource):
     @api.doc("get all food categories")
     @api.response(200,description="food categories")
     def get(self):
-        return {"categories": [category.value for category in FoodCategoryEnum]}
+        return {"categories": sorted([category.value for category in FoodCategoryEnum])}
