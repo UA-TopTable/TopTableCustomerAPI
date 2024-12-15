@@ -65,17 +65,13 @@ class ReservationPage(Resource):
 @api.route("/home")
 class HomePage(Resource):
     def get(self):
-        # if 'x-amzn-oidc-accesstoken' in request.headers:
-        #     access_token = request.headers.get('x-amzn-oidc-accesstoken')
-        # elif "access_token" in request.cookies:
-        #     access_token=request.cookies.get("access_token")
-        # else:
-        #     return "not authorized",401
-        # user = get_user(access_token)
-        user = {
-            "full_name": "Test User",
-            "email": "fdsaf"
-        }
+        if 'x-amzn-oidc-accesstoken' in request.headers:
+            access_token = request.headers.get('x-amzn-oidc-accesstoken')
+        elif "access_token" in request.cookies:
+            access_token=request.cookies.get("access_token")
+        else:
+            return "not authorized",401
+        user = get_user(access_token)
 
         query = request.args.get('query', '')
         category = request.args.get('category', '')
@@ -154,12 +150,14 @@ class UserReservationsPage(Resource):
     @api.param("ends_before", "Filter reservations that end before date")
     @api.param("restaurant_id", "Filter reservations that belong to a specific restaurant")
     def get(self):
-        user = {
-            "full_name": "Test User",
-            "email": "fdsaf",
-            "id": "123"
-        }
-
+        if 'x-amzn-oidc-accesstoken' in request.headers:
+            access_token = request.headers.get('x-amzn-oidc-accesstoken')
+        elif "access_token" in request.cookies:
+            access_token=request.cookies.get("access_token")
+        else:
+            return "not authorized",401
+        user = get_user(access_token)
+        
         starts_after=None
         ends_before=None
         restaurant_id=None
