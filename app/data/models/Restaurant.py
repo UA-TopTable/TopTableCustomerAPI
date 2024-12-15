@@ -70,4 +70,5 @@ class Restaurant(Base):
         for key in ['location_latitude', 'location_longitude']:
             if key in result and result[key] is not None:
                 result[key] = float(result[key])
+        result['food_category'] = result['food_category'].value
         return result
