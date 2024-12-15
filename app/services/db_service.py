@@ -10,7 +10,7 @@ from data.db_engine import engine
     
 from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
-from sqlalchemy import and_
+from sqlalchemy import and_, or_
 from sqlalchemy.orm.exc import NoResultFound
 
 def add_reservation(user_id,restaurant_id,dining_table_id,number_of_people,reservation_start_time
@@ -102,7 +102,8 @@ def add_restaurant(restaurant_data: dict):
             location_longitude=Decimal(str(restaurant_data['location_longitude'])),
             restaurant_image=restaurant_data.get('restaurant_image'),
             time_zone=restaurant_data.get('time_zone'),
-            owner_user_id=restaurant_data.get('owner_user_id')
+            owner_user_id=restaurant_data.get('owner_user_id'),
+            food_category=restaurant_data.get('food_category')
         )
         session.add(restaurant)
         session.commit()
@@ -116,8 +117,41 @@ def get_restaurant(restaurant_id):
 def get_all_restaurants():
     with Session(engine) as session:
         restaurants=session.query(Restaurant).order_by(Restaurant.id).all()
-        return [restaurant.as_dict() for restaurant in restaurants] if restaurants else None
-    
+        return [restaurant.as_dict() for restaurant in restaurants] if restaurants else []
+
+def get_all_restaurants_filtered(query, category):
+    with Session(engine) as session:
+        if len(category)>1 and len(query)>1:
+            restaurants = session.query(Restaurant).filter(
+                and_(
+                    Restaurant.food_category.ilike(f"%{category}%"),
+                    or_(
+                        Restaurant.location_address.ilike(f"%{query}%"),
+                        Restaurant.name.ilike(f"%{query}%"),
+                        Restaurant.description.ilike(f"%{query}%")
+                    )
+                )
+            ).order_by(Restaurant.id).all()
+        elif len(category)>1:
+            restaurants = session.query(Restaurant).filter(
+                    and_(
+                        Restaurant.food_category.ilike(f"%{category}%")
+                    )
+                    ).order_by(Restaurant.id).all()
+        elif len(query)>1:
+            restaurants = session.query(Restaurant).filter(
+                    and_(
+                        or_(
+                            Restaurant.location_address.ilike(f"%{query}%"),
+                            Restaurant.name.ilike(f"%{query}%"),
+                            Restaurant.description.ilike(f"%{query}%")
+                        )
+                    )
+                    ).order_by(Restaurant.id).all()
+        else:
+            restaurants=session.query(Restaurant).order_by(Restaurant.id).all()
+        return [restaurant.as_dict() for restaurant in restaurants] if restaurants else []
+       
 def get_all_tables(restaurant_id):
     with Session(engine) as session:
         tables=session.query(DiningTable).filter(DiningTable.restaurant_id==restaurant_id).all()
@@ -160,6 +194,7 @@ def delete_all_data():
     Delete all data from the database
     """
     with Session(engine) as session:
+        session.query(RestaurantPictures).delete()
         session.query(Reservation).delete()
         session.query(DiningTable).delete()
         session.query(WorkingHours).delete()

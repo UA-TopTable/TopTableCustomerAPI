@@ -2,7 +2,7 @@ import boto3
 from urllib.parse import urlparse
 from flask import make_response, redirect, render_template, request
 from flask_restx import Namespace,Resource
-from services.db_service import get_reservation, get_restaurant, get_all_restaurants, get_pictures, get_all_tables,get_table_by_id,get_user_reservations,get_restaurant_by_id
+from services.db_service import get_all_restaurants_filtered, get_reservation, get_restaurant, get_all_restaurants, get_pictures, get_all_tables,get_table_by_id,get_user_reservations,get_restaurant_by_id
 from services.auth_service import get_user
 
 api=Namespace("ui",path="/ui",description="UI-related endpoints")
@@ -73,7 +73,12 @@ class HomePage(Resource):
             return "not authorized",401
         user = get_user(access_token)
 
-        restaurants = get_all_restaurants()
+        query = request.args.get('query', '')
+        category = request.args.get('category', '')
+        if query or category:
+            restaurants = get_all_restaurants_filtered(query,category)
+        else:
+            restaurants = get_all_restaurants()
         try:
             for r in restaurants:
                 picture = r.get('restaurant_image')
@@ -154,9 +159,9 @@ class UserReservationsPage(Resource):
         elif "access_token" in request.cookies:
             access_token=request.cookies.get("access_token")
         else:
-            return "no access token",400
-        user=get_user(access_token)
-
+            return "not authorized",401
+        user = get_user(access_token)
+        
         starts_after=None
         ends_before=None
         restaurant_id=None
