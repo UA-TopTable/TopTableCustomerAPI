@@ -78,7 +78,7 @@ class HomePage(Resource):
             for r in restaurants:
                 picture = r.get('restaurant_image')
                 if not (picture == '' or picture is None):
-                    parsed_url = urlparse(picture['link'])
+                    parsed_url = urlparse(picture)
                     
                     bucket_name = parsed_url.netloc.split('.')[0]
                     object_key = parsed_url.path.lstrip('/')
