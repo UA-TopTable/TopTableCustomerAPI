@@ -26,7 +26,7 @@
       <div class="card shadow-sm h-100">
         {% if restaurant.restaurant_image and 'http' in restaurant.restaurant_image %}
         <div class="d-flex justify-content-center">
-          <img src="{{ restaurant.restaurant_image }}" class="card-img-top justify-content-center" alt="{{ restaurant.name }}"
+          <img src="{{ restaurant.restaurant_image }}" class="card-img-top" alt="{{ restaurant.name }}"
             style="height: 200px; width: 300px; object-fit: cover;">
         </div>
         {% else %}
