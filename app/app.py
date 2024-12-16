@@ -1,6 +1,5 @@
 from flask import Flask
 from apis import api
-from mocking import create_mock_datas
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -15,5 +14,4 @@ def create_app():
 
 if __name__ == "__main__":
     app = create_app()
-    create_mock_datas(app)
     app.run(port=APP_PORT, debug=True)
