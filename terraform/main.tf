@@ -876,17 +876,7 @@ resource "aws_lb_listener" "http" {
 # --------------------------------- SQS Setup  ---------------------------------
 resource "aws_sqs_queue" "toptable_queue" {
   name = "reservation_confirmation_queue"
-
-  redrive_policy = jsonencode({
-    deadLetterTargetArn = aws_sqs_queue.dlq.arn
-    maxReceiveCount     = 1
-  })
 }
-
-resource "aws_sqs_queue" "dlq" {
-  name= "dead-letter-queue"
-}
-
 
 
 # --------------------------------- Outputs ---------------------------------
