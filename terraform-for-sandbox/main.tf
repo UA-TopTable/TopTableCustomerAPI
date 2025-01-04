@@ -946,7 +946,7 @@ resource "aws_sqs_queue" "toptable_queue" {
 }
 
 resource "aws_sqs_queue" "dlq" {
-  name= "dead-letter-queue
+  name= "dead-letter-queue"
 }
 
 
