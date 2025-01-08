@@ -884,32 +884,13 @@ resource "aws_lb_listener" "https" {
   certificate_arn   = aws_acm_certificate.cert.arn
 
   default_action {
-    type = "authenticate-cognito"
-
-    authenticate_cognito {
-      user_pool_arn       = aws_cognito_user_pool.proj_user_pool.arn
-      user_pool_client_id = aws_cognito_user_pool_client.app_client.id
-      user_pool_domain    = aws_cognito_user_pool_domain.new_domain.domain
-
-      authentication_request_extra_params = {
-        prompt = "login"
-      }
-
-      on_unauthenticated_request = "authenticate" # or "deny" or "allow" based on your needs
-      scope                      = "openid"
-      session_cookie_name        = "AWSELBAuthSessionCookie"
-      session_timeout            = 3600 # 1 hour
-    }
-  }
-
-  # After authentication, forward to target group
-  # Default action should return a fixed response for unknown paths
-  default_action {
-    type = "fixed-response"
-    fixed_response {
-      content_type = "text/plain"
-      message_body = "Not Found"
-      status_code  = "404"
+    type = "redirect"
+    redirect {
+      port        = "443"
+      protocol    = "HTTPS"
+      status_code = "HTTP_301"
+      host        = "ua-toptable.github.io"
+      path        = "/TopTable-Landing-Page/"
     }
   }
 
@@ -948,7 +929,7 @@ resource "aws_sqs_queue_policy" "toptable_queue_all_can_delete_policy" {
     Version = "2012-10-17"
     Statement = [
       {
-        Effect = "Allow"
+        Effect    = "Allow"
         Principal = "*"
         Action = [
           "sqs:DeleteMessage"
