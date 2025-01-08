@@ -115,6 +115,9 @@
             initialView: 'dayGridMonth',
             headerToolbar: { left: 'prev,next today', center: 'title', right: '' },
             events: [],
+            validRange: {
+                start: new Date().toISOString().split('T')[0]
+            },
             dateClick: function (info) {
                 const reservationModal = new bootstrap.Modal(document.getElementById('reservationModal'));
                 reservationModal.show();
