@@ -81,7 +81,7 @@ def get_table_available_time_slots(restaurant_id, table_id, reservation_date):
             available_slots = [
                 slot for slot in available_slots
                 if not (reservation.reservation_start_time < slot[1] and
-                        reservation.reservation_end_time > slot[0])
+                        reservation.reservation_end_time > slot[0]) or reservation.status == 'cancelled'
             ]
 
         # Format the available slots
